@@ -1,0 +1,8 @@
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\bin\Debug\Chess.exe.config
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\bin\Debug\Chess.exe
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\bin\Debug\Chess.pdb
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.AssemblyReference.cache
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.SuggestedBindingRedirects.cache
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.CoreCompileInputs.cache
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.exe
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.pdb
