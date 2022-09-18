@@ -8,11 +8,14 @@ using Newtonsoft.Json;
 namespace Chess
 {
     [Serializable]
-    internal class Program
+    public class Field
     {
-        static void Main(string[] args)
+        [JsonProperty("Cells")]
+        public List<Cell> Cells { get; set; }
+
+        public Field(List<Cell> cells)
         {
-            
+            Cells = cells;
         }
     }
 }

@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace Chess
 {
-    [Serializable]
-    internal class Program
+    public enum TypeOfFigure
     {
-        static void Main(string[] args)
-        {
-            
-        }
+        Pawn,
+        Bishop,
+        Knight,
+        Rook,
+        Queen,
+        King
     }
 }

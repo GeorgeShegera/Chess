@@ -6,3 +6,6 @@ E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.SuggestedB
 E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.CoreCompileInputs.cache
 E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.exe
 E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.pdb
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\bin\Debug\Newtonsoft.Json.dll
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\bin\Debug\Newtonsoft.Json.xml
+E:\programmingC#\ChessGitHub\Chess\Chess\Chess\obj\Debug\Chess.csproj.CopyComplete
