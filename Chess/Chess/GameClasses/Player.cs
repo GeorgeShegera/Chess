@@ -33,5 +33,29 @@ namespace Chess
             Side = side;
             Rating = rating;
         }
+        public Player(string login, string password)
+        {
+            Login = login;
+            Password = password;
+            Color = new Color();
+            Side = new Side();
+            Rating = 0;
+        }
+        public Player()
+        {
+            Login = "";
+            Password = "";
+            Color = Color.White;
+            Side = Side.Bottom;
+            Rating = 0;
+        }
+        public static bool operator ==(Player player1, Player player2)
+        {
+            return player1.Login == player2.Login && player1.Password == player2.Password;
+        }
+        public static bool operator !=(Player player1, Player player2)
+        {
+            return player1.Login != player2.Login || player1.Password != player2.Password;
+        }
     }
 }

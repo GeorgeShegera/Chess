@@ -21,5 +21,36 @@ namespace Chess
             Players = players;
             Matches = matches;
         }
+        public DataBase()
+        {
+            Players = new List<Player>();
+            Matches = new List<Match>();
+        }
+
+        public Player FindPlayer(string login, string password)
+        {
+            foreach(Player player in Players)
+            {
+                if (player.Login == login && 
+                    player.Password == password)
+                {
+                    return player;
+                }
+            }
+            return null;
+        }
+
+        public bool ContainsLogin(string login)
+        {
+            var players = from p in Players
+                          where p.Login == login
+                          select p;
+            return players.Count() != 0;
+        }
+
+        public void AddPlayer(Player player)
+        {
+            Players.Add(player);
+        }
     }
 }

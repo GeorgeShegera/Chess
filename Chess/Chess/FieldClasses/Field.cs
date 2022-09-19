@@ -17,5 +17,9 @@ namespace Chess
         {
             Cells = cells;
         }
+        public Field()
+        {
+            Cells = new List<Cell>();
+        }
     }
 }

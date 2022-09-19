@@ -37,5 +37,14 @@ namespace Chess
             SecondPlayer = secondPlayer;
             Date = date;
         }
+        public Match()
+        {
+            FinallyField = new Field();
+            Time = new DateTime();
+            VsBot = false;
+            FirstPlayer = new Player();
+            SecondPlayer = new Player();
+            Date = DateTime.MinValue;
+        }
     }
 }
