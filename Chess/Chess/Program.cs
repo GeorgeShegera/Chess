@@ -40,7 +40,28 @@ namespace Chess
             }
             return json;
         }
-
+        public static Color SwitchColor(Color color)
+        {
+            if (color == Color.White)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                return Color.White;
+            }
+        }
+        public static Side SwitchSide(Side side)
+        {
+            if (side == Side.Top)
+            {
+                return Side.Bottom;
+            }
+            else
+            {
+                return Side.Top;
+            }
+        }
         private static Player Authorization(DataBase dataBase)
         {
             string login;
@@ -62,7 +83,7 @@ namespace Chess
                             Player result = dataBase.FindPlayer(login, password);
                             if (result is null)
                             {
-                                 Console.WriteLine("Invalid login or password");
+                                Console.WriteLine("Invalid login or password");
                             }
                             else
                             {
@@ -74,7 +95,7 @@ namespace Chess
                         {
                             Console.Write("Input your login: ");
                             login = Console.ReadLine();
-                            if(dataBase.ContainsLogin(login))
+                            if (dataBase.ContainsLogin(login))
                             {
                                 Console.WriteLine("This login is taken");
                                 break;
@@ -90,14 +111,14 @@ namespace Chess
                         {
                             Console.WriteLine("Invalid mode");
                         }
-                        break;                        
+                        break;
                 }
                 Console.ReadKey();
             }
         }
 
         static void Main(string[] args)
-        {            
+        {
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)
@@ -108,9 +129,149 @@ namespace Chess
             {
                 bool endOfSession = false;
                 Player curPlayer = Authorization(dataBase);
-                while(!endOfSession)
+                while (!endOfSession)
                 {
-                    
+                    Console.Clear();
+                    Console.WriteLine($"{(int)Menu.Rules} - Rules\n" +
+                                      $"{(int)Menu.CreateLobby} - Create Lobby\n" +
+                                      $"{(int)Menu.Rating} - Rating\n" +
+                                      $"{(int)Menu.MatchHistory} - Match History\n" +
+                                      $"{(int)Menu.Exit} - Exit");
+                    Enum.TryParse(Console.ReadLine(), out Menu menu);
+                    switch (menu)
+                    {
+                        case Menu.Rules:
+                            {
+                                Console.WriteLine("Chess is a two-player abstract strategy board game.\n" +
+                                    "Each player controls sixteen pieces of six types on a chessboard.\n" +
+                                    "Each type of piece moves in a distinct way\n" +
+                                    "The object of the game is to checkmate (inescapably threaten with capture) the opponent's king.\n" +
+                                    "A game can end in various ways besides checkmate: a player can resign,\n" +
+                                    "and there are several ways in which a game can end in a draw.");
+                            }
+                            break;
+                        case Menu.CreateLobby:
+                            {
+                                Game game = new Game();
+                                game.FirstPlayer = curPlayer;
+                                bool exit = false;
+                                while (!exit)
+                                {
+                                    Console.Clear();
+                                    game.ShowLobby(41, 13);
+                                    Console.WriteLine($"{(int)LobbyMenu.AddBot} - Add bot\n" +
+                                                      $"{(int)LobbyMenu.AddPlayer} - Add player\n" +
+                                                      $"{(int)LobbyMenu.RemovePlayer} - Remove player\n" +
+                                                      $"{(int)LobbyMenu.StartGame} - Start game\n" +
+                                                      $"{(int)LobbyMenu.SwitchColor} - Switch color\n" +
+                                                      $"{(int)LobbyMenu.SwitchSide} - Switch side\n" +
+                                                      $"{(int)LobbyMenu.SwapPlaces} - Swap places\n" +
+                                                      $"{(int)LobbyMenu.Exit} - Exit");
+                                    Enum.TryParse(Console.ReadLine(), out LobbyMenu lobbyMenu);
+                                    switch (lobbyMenu)
+                                    {
+                                        case LobbyMenu.AddBot:
+                                            {
+                                                if (!game.VerifyAddingPlayer())
+                                                {
+                                                    Console.WriteLine("The lobby is full");
+                                                    break;
+                                                }
+                                                game.VsBot = true;
+                                                game.Bot = new Bot(SwitchColor(curPlayer.Color), SwitchSide(curPlayer.Side));
+                                            }
+                                            break;
+                                        case LobbyMenu.AddPlayer:
+                                            {
+                                                if (!game.VerifyAddingPlayer())
+                                                {
+                                                    Console.WriteLine("The lobby is full");
+                                                    break;
+                                                }
+                                                Player player = Authorization(dataBase);
+                                                if (player == curPlayer)
+                                                {
+                                                    Console.WriteLine("You can't play yourself");
+                                                    break;
+                                                }
+                                                game.AddPlayer(player);
+                                            }
+                                            break;
+                                        case LobbyMenu.RemovePlayer:
+                                            {
+                                                if (game.VsBot)
+                                                {
+                                                    game.VsBot = false;
+                                                    break;
+                                                }
+                                                if (curPlayer == game.FirstPlayer)
+                                                {
+                                                    game.RemoveSecondPlayer();
+                                                }
+                                                else
+                                                {
+                                                    game.RemoveFirstPlayer();
+                                                }
+                                            }
+                                            break;
+                                        case LobbyMenu.StartGame:
+                                            {
+
+                                            }
+                                            break;
+                                        case LobbyMenu.SwitchColor:
+                                            {
+                                                game.SwitchColors();
+                                            }
+                                            break;
+                                        case LobbyMenu.SwitchSide:
+                                            {
+                                                game.SwitchSides();
+                                            }
+                                            break;
+                                        case LobbyMenu.SwapPlaces:
+                                            {
+                                                game.SwapPlaces();
+                                            }
+                                            break;
+                                        case LobbyMenu.Exit:
+                                            {
+                                                game = new Game();
+                                                exit = true;
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                Console.WriteLine("Invalid mode");
+                                            }
+                                            break;
+                                    }
+                                    Console.ReadKey();
+                                }
+                            }
+                            break;
+                        case Menu.Rating:
+                            {
+
+                            }
+                            break;
+                        case Menu.MatchHistory:
+                            {
+
+                            }
+                            break;
+                        case Menu.Exit:
+                            {
+
+                            }
+                            break;
+                        default:
+                            {
+                                Console.WriteLine("Invalid mode");
+                            }
+                            break;
+                    }
+                    Console.ReadKey();
                 }
             }
         }

@@ -49,6 +49,18 @@ namespace Chess
             Side = Side.Bottom;
             Rating = 0;
         }
+        public void SwitchColor()
+        {
+            Color = Program.SwitchColor(Color);
+        }
+        public void SwitchSide()
+        {
+            Side = Program.SwitchSide(Side);
+        }
+        public bool Authorized()
+        {
+            return Login != "" && Password != "";
+        }
         public static bool operator ==(Player player1, Player player2)
         {
             return player1.Login == player2.Login && player1.Password == player2.Password;

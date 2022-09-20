@@ -8,7 +8,7 @@ namespace Chess
 {
     public enum Menu
     {
-        Rules,
+        Rules = 1,
         CreateLobby,
         Rating,
         MatchHistory,

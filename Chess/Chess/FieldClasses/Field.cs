@@ -21,5 +21,16 @@ namespace Chess
         {
             Cells = new List<Cell>();
         }
+        public Color SwitchColor(Color color)
+        {
+            if(color == Color.White)
+            {
+                return Color.Black;
+            }
+            else
+            {
+                return Color.White;
+            }
+        }
     }
 }
