@@ -10,8 +10,8 @@ namespace Chess
     [Serializable]
     public class Match
     {
-        [JsonProperty("FinallyField")]
-        public Field FinallyField { get; set; }
+        [JsonProperty("FinalField")]
+        public Field FinalField { get; set; }
 
         [JsonProperty("Time")]
         public DateTime Time { get; set; }
@@ -20,31 +20,55 @@ namespace Chess
         public bool VsBot { get; set; }
 
         [JsonProperty("FirstPlayer")]
-        public Player FirstPlayer { get; set; }
+        public Player Winner { get; set; }
 
         [JsonProperty("SecondPlayer")]
-        public Player SecondPlayer { get; set; }
+        public Player Loser { get; set; }
 
         [JsonProperty("Date")]
         public DateTime Date { get; set; }
 
         public Match(Field finallyField, DateTime time, bool vsBot, Player firstPlayer, Player secondPlayer, DateTime date)
         {
-            FinallyField = finallyField;
+            FinalField = finallyField;
             Time = time;
             VsBot = vsBot;
-            FirstPlayer = firstPlayer;
-            SecondPlayer = secondPlayer;
+            Winner = firstPlayer;
+            Loser = secondPlayer;
             Date = date;
         }
         public Match()
         {
-            FinallyField = new Field();
+            FinalField = new Field();
             Time = new DateTime();
             VsBot = false;
-            FirstPlayer = new Player();
-            SecondPlayer = new Player();
+            Winner = new Player();
+            Loser = new Player();
             Date = DateTime.MinValue;
+        }
+        public void Show()
+        {
+            Console.WriteLine($"Match Date: {Date}");
+            FinalField.Show();
+            Console.WriteLine($"The game lasted: {Time}");
+            if(VsBot)
+            {
+                if(!Winner.Authorized())
+                {
+                    Console.WriteLine($"{Winner.Login} has won.\n" +
+                                      $"Bot has lost.");
+                }
+                else
+                {
+                    Console.WriteLine($"Bot has won.\n" +
+                                      $"{Loser.Login} has lost.");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"{Winner.Login} has won.\n" +
+                                  $"{Loser.Login} has lost");
+            }
         }
     }
 }

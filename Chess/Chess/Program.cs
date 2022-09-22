@@ -120,24 +120,6 @@ namespace Chess
         static void Main(string[] args)
         {
             DataBase dataBase = new DataBase();
-            //Player player1 = new Player(1, "Me");
-            //List<Player> players = new List<Player>
-            //{
-            //    new Player(120, "WWWW"),
-            //    new Player(200, "QQQQ"),
-            //    new Player(300, "UUUU"),
-            //    new Player(54, "TTTT"),
-            //    new Player(1000, "BBBB"),
-            //    new Player(12, "XX"),
-            //    new Player(1222, "PPPP"),
-            //    player1
-            //};
-            //dataBase.AddPlayers(players);
-            //dataBase.ShowTopPlayers(5, player1);
-            Console.OutputEncoding = System.Text.Encoding.Unicode;
-
-            Field field = new Field();
-            Console.ReadLine();
             string data = LoadDataBase();
             if (data.Length != 0)
             {
@@ -276,12 +258,14 @@ namespace Chess
                             break;
                         case Menu.MyMatchHistory:
                             {
-
+                                Console.WriteLine("My match history: ");
+                                dataBase.ShowMatchHistory(curPlayer);
                             }
                             break;
                         case Menu.RecentMatches:
                             {
-
+                                Console.WriteLine("Recent Matches: ");
+                                dataBase.ShowRecentMatches(5);
                             }
                             break;
                         case Menu.Exit:

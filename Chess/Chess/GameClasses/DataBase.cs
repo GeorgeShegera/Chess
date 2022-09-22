@@ -57,11 +57,14 @@ namespace Chess
         {
             Players.AddRange(players);
         }
-
+        public void AddMatch(Match match)
+        {
+            Matches.Add(match);
+        }
         public void ShowTopPlayers(int limit, Player user)
         {
             List<Player> players = Players.Select(x => x).OrderByDescending(x => x.Rating).Take(limit).ToList();
-            for (int i = 0; i < limit; i++)
+            for (int i = 0; i < limit && i < players.Count; i++)
             {
                 Console.WriteLine($"{i + 1}# {players[i].Login} - {players[i].Rating}");
             }
@@ -80,6 +83,26 @@ namespace Chess
 
             }
         }
-
+        public void ShowMatchHistory(Player player)
+        {
+            var matches = from match in Matches
+                                  where match.Winner == player || 
+                                  match.Loser == player
+                                  select match;
+            foreach(var match in matches)
+            {
+                match.Show();
+                Console.WriteLine();
+            }
+        }
+        public void ShowRecentMatches(int limit)
+        {
+            var matches = Matches.Select(x => x).Take(limit);
+            foreach(var match in matches)
+            {
+                match.Show();
+                Console.WriteLine();
+            }
+        }
     }
 }
