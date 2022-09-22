@@ -20,5 +20,10 @@ namespace Chess
             Color = color;
             Type = type;
         }
+        public Figure()
+        {
+            Color = new Color();
+            Type = new TypeOfFigure();
+        }
     }
 }

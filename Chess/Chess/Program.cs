@@ -120,6 +120,24 @@ namespace Chess
         static void Main(string[] args)
         {
             DataBase dataBase = new DataBase();
+            //Player player1 = new Player(1, "Me");
+            //List<Player> players = new List<Player>
+            //{
+            //    new Player(120, "WWWW"),
+            //    new Player(200, "QQQQ"),
+            //    new Player(300, "UUUU"),
+            //    new Player(54, "TTTT"),
+            //    new Player(1000, "BBBB"),
+            //    new Player(12, "XX"),
+            //    new Player(1222, "PPPP"),
+            //    player1
+            //};
+            //dataBase.AddPlayers(players);
+            //dataBase.ShowTopPlayers(5, player1);
+            Console.OutputEncoding = System.Text.Encoding.Unicode;
+
+            Field field = new Field();
+            Console.ReadLine();
             string data = LoadDataBase();
             if (data.Length != 0)
             {
@@ -135,7 +153,8 @@ namespace Chess
                     Console.WriteLine($"{(int)Menu.Rules} - Rules\n" +
                                       $"{(int)Menu.CreateLobby} - Create Lobby\n" +
                                       $"{(int)Menu.Rating} - Rating\n" +
-                                      $"{(int)Menu.MatchHistory} - Match History\n" +
+                                      $"{(int)Menu.MyMatchHistory} - My match history\n" +
+                                      $"{(int)Menu.RecentMatches} - Recent matches\n" +
                                       $"{(int)Menu.Exit} - Exit");
                     Enum.TryParse(Console.ReadLine(), out Menu menu);
                     switch (menu)
@@ -252,17 +271,22 @@ namespace Chess
                             break;
                         case Menu.Rating:
                             {
+                                dataBase.ShowTopPlayers(5, curPlayer);
+                            }
+                            break;
+                        case Menu.MyMatchHistory:
+                            {
 
                             }
                             break;
-                        case Menu.MatchHistory:
+                        case Menu.RecentMatches:
                             {
 
                             }
                             break;
                         case Menu.Exit:
                             {
-
+                                endOfSession = true;
                             }
                             break;
                         default:

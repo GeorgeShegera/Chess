@@ -11,7 +11,8 @@ namespace Chess
         Rules = 1,
         CreateLobby,
         Rating,
-        MatchHistory,
+        MyMatchHistory,
+        RecentMatches,
         Exit
     }
 }

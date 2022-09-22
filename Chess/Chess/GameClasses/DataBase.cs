@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,9 +30,9 @@ namespace Chess
 
         public Player FindPlayer(string login, string password)
         {
-            foreach(Player player in Players)
+            foreach (Player player in Players)
             {
-                if (player.Login == login && 
+                if (player.Login == login &&
                     player.Password == password)
                 {
                     return player;
@@ -52,5 +53,33 @@ namespace Chess
         {
             Players.Add(player);
         }
+        public void AddPlayers(List<Player> players)
+        {
+            Players.AddRange(players);
+        }
+
+        public void ShowTopPlayers(int limit, Player user)
+        {
+            List<Player> players = Players.Select(x => x).OrderByDescending(x => x.Rating).Take(limit).ToList();
+            for (int i = 0; i < limit; i++)
+            {
+                Console.WriteLine($"{i + 1}# {players[i].Login} - {players[i].Rating}");
+            }
+            if (!players.Contains(user))
+            {
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    if (Players[i] == user)
+                    {
+                        Console.WriteLine("...\n" +
+                                         $"{i + 1}# {user.Login} - {user.Rating}\n" +
+                                         $"...");
+                        break;
+                    }
+                }
+
+            }
+        }
+
     }
 }

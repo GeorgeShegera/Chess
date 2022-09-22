@@ -33,6 +33,7 @@ namespace Chess
             Side = side;
             Rating = rating;
         }
+
         public Player(string login, string password)
         {
             Login = login;
@@ -41,6 +42,7 @@ namespace Chess
             Side = new Side();
             Rating = 0;
         }
+
         public Player()
         {
             Login = "";
@@ -48,6 +50,15 @@ namespace Chess
             Color = Color.White;
             Side = Side.Bottom;
             Rating = 0;
+        }
+
+        public Player(int rating, string login)
+        {
+            Rating = rating;
+            Login = login;
+            Password = "";
+            Color = new Color();
+            Side = new Side();
         }
         public void SwitchColor()
         {
