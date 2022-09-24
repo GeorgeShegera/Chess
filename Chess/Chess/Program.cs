@@ -217,7 +217,14 @@ namespace Chess
                                             break;
                                         case LobbyMenu.StartGame:
                                             {
-
+                                                if (!game.VsBot &&
+                                                   (!game.FirstPlayer.Authorized() ||
+                                                    !game.SecondPlayer.Authorized()))
+                                                {
+                                                    Console.WriteLine("There are not enough players");
+                                                    break;
+                                                }
+                                                game.StartGame(curPlayer.Color);
                                             }
                                             break;
                                         case LobbyMenu.SwitchColor:

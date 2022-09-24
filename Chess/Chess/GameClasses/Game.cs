@@ -215,5 +215,63 @@ namespace Chess
         {
             SecondPlayer = new Player();
         }
+        public void StartGame(Color playerColor)
+        {
+            GameField = new Field();
+            GameField.Fill(8, 8, playerColor);
+            Color curColor = Color.White;
+            while(true)
+            {
+                Console.Clear();
+                GameField.Show();
+                bool endOfTurn = false;
+                while (!endOfTurn)
+                {
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    if (curColor == FirstPlayer.Color)
+                    {
+                        Console.WriteLine($"Turn of: {FirstPlayer.Login}({curColor})");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Turn of: {SecondPlayer.Login}({curColor})");
+                    }
+                    while (true)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine("Select your chess piece");
+                        Console.ResetColor();
+                        Point point = RequestCoords();
+                        if (!VerifyPoint(point, curColor))
+                        {
+                            Console.WriteLine("Invalid coords");
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+                curColor = Program.SwitchColor(curColor);
+            }
+        }
+        public Point RequestCoords()
+        {
+            Console.Write("Input the first coord(letter): ");
+            char.TryParse(Console.ReadLine(), out char coordX);
+            Console.Write("Input the second coord(number): ");
+            int.TryParse(Console.ReadLine(), out int coordY);
+            return GameField.ConvertCoords(coordY, coordX);
+        }
+        public bool VerifyEmptiness(Point point)
+        {
+            return GameField[point].IsEmpty;
+        }
+        public bool VerifyPoint(Point point, Color playerColor)
+        {
+            return GameField.VerifyPoint(point) &&
+                   !VerifyEmptiness(point) &&
+                   GameField[point].Figure.Color == playerColor;
+        }
     }
 }

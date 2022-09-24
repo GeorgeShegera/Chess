@@ -37,7 +37,7 @@ namespace Chess
 
         public void Fill(int length, int height, Color color)
         {
-            Color curCellCol = Color.White;
+            Color curCellCol = Program.SwitchColor(color);
             for (int i = 0; i < height; i++)
             {
                 Cells.Add(new List<Cell>());
@@ -84,6 +84,7 @@ namespace Chess
                 }
             }
         }
+
         public void Show()
         {
             Console.WriteLine("    A  B  C  D  E  F  G  H  ");
@@ -93,7 +94,11 @@ namespace Chess
                 Console.Write(Cells.Count - i + " |");
                 for (int j = 0; j < Cells[i].Count; j++)
                 {
-                    if (Cells[i][j].Color == Color.White)
+                    if (Cells[i][j].Track)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkYellow;
+                    }
+                    else if (Cells[i][j].Color == Color.White)
                     {
                         Console.BackgroundColor = ConsoleColor.Gray;
                     }
@@ -109,7 +114,7 @@ namespace Chess
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.DarkBlue;
+                            Console.ForegroundColor = ConsoleColor.Black;
                         }
 
                         TypeOfFigure type = Cells[i][j].Figure.Type;
@@ -144,9 +149,34 @@ namespace Chess
                     }
                     Console.ResetColor();
                 }
-                Console.WriteLine("|");
+                Console.WriteLine("|" + $" {Cells.Count - i}");
             }
-            Console.WriteLine("  --------------------------");
+            Console.WriteLine("  --------------------------\n" +
+                              "    A  B  C  D  E  F  G  H  \n");            
+        }
+
+        public bool VerifyPoint(Point point)
+        {
+            return point.CoordX >= 0 && point.CoordY >= 0 &&
+                   point.CoordX < Cells.Count && 
+                   point.CoordY < Cells.Count;
+        }
+        public Point ConvertCoords(int coordY, char coordX)
+        {
+            coordX = Char.ToLower(coordX);
+            return new Point(coordX - 'a', Cells.Count - coordY);
+        }
+
+        public Cell this[Point point]
+        {
+            get
+            {
+                return Cells[point.CoordY][point.CoordX];
+            }
+            set
+            {
+                Cells[point.CoordY][point.CoordX] = value;
+            }
         }
     }
 }
