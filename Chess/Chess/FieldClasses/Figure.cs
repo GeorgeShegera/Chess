@@ -13,17 +13,22 @@ namespace Chess
         public Color Color { get; set; }
 
         [JsonProperty("Type")]
-        public TypeOfFigure Type { get; set; }
+        public FigureType Type { get; set; }
 
-        public Figure(Color color, TypeOfFigure type)
+        [JsonProperty("FirstMove")]
+        public bool FirstMove { get; set; }
+
+        public Figure(Color color, FigureType type, bool firstMove)
         {
             Color = color;
             Type = type;
+            FirstMove = firstMove;
         }
         public Figure()
         {
             Color = new Color();
-            Type = new TypeOfFigure();
+            Type = new FigureType();
+            FirstMove = true;
         }
     }
 }

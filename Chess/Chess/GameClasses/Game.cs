@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -165,14 +166,14 @@ namespace Chess
         }
         public bool VerifyAddingPlayer()
         {
-            return !VsBot && 
+            return !VsBot &&
                    (!FirstPlayer.Authorized() || !SecondPlayer.Authorized());
         }
         public void SwitchColors()
         {
             FirstPlayer.SwitchColor();
             SecondPlayer.SwitchColor();
-            if(VsBot)
+            if (VsBot)
             {
                 Bot.SwitchColor();
             }
@@ -181,7 +182,7 @@ namespace Chess
         {
             FirstPlayer.SwitchSide();
             SecondPlayer.SwitchSide();
-            if(VsBot)
+            if (VsBot)
             {
                 Bot.SwitchSide();
             }
@@ -220,7 +221,7 @@ namespace Chess
             GameField = new Field();
             GameField.Fill(8, 8, playerColor);
             Color curColor = Color.White;
-            while(true)
+            while (true)
             {
                 Console.Clear();
                 GameField.Show();
@@ -251,6 +252,7 @@ namespace Chess
                             break;
                         }
                     }
+
                 }
                 curColor = Program.SwitchColor(curColor);
             }
@@ -263,15 +265,11 @@ namespace Chess
             int.TryParse(Console.ReadLine(), out int coordY);
             return GameField.ConvertCoords(coordY, coordX);
         }
-        public bool VerifyEmptiness(Point point)
-        {
-            return GameField[point].IsEmpty;
-        }
         public bool VerifyPoint(Point point, Color playerColor)
         {
             return GameField.VerifyPoint(point) &&
-                   !VerifyEmptiness(point) &&
-                   GameField[point].Figure.Color == playerColor;
+                   !GameField.EmptyCell(point) &&
+                   GameField.CellFigure(point).Color == playerColor;
         }
     }
 }

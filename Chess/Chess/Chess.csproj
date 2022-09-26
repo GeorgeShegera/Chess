@@ -46,10 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Diraction.cs" />
     <Compile Include="GameClasses\Bot.cs" />
     <Compile Include="FieldClasses\Cell.cs" />
     <Compile Include="GameClasses\DataBase.cs" />
-    <Compile Include="Enums\TypeOfFigure.cs" />
+    <Compile Include="Enums\FigureType.cs" />
     <Compile Include="Enums\Color.cs" />
     <Compile Include="FieldClasses\Field.cs" />
     <Compile Include="FieldClasses\Figure.cs" />

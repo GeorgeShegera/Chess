@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 namespace Chess
 {
-    public enum TypeOfFigure
+    public enum Diraction
     {
-        Pawn,
-        Bishop,
-        Knight,
-        Rook,
-        Queen,
-        King
+        Up,
+        Down,
+        Left,
+        Right,
+        RightUp,
+        LeftUp,
+        RightDown,
+        LeftDown
     }
 }
