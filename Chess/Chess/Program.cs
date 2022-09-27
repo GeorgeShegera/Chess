@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -64,6 +65,15 @@ namespace Chess
         }
         private static Player Authorization(DataBase dataBase)
         {
+            Field field = new Field();
+            field.Fill(8, 8, Color.White);
+            field[new Point(3, 3)].IsEmpty = false;
+            field[new Point(3, 3)].Figure = new Figure(Color.White, FigureType.Bishop, false);
+            field[new Point(4, 4)].IsEmpty = false;
+            field[new Point(4, 4)].Figure = new Figure(Color.Black, FigureType.Bishop, false);
+            field.Show();
+            field.FindBishopWays(new Point(3, 3), Color.White);
+            Console.ReadLine();
             string login;
             string password;
             while (true)

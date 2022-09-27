@@ -185,9 +185,34 @@ namespace Chess
             switch (CellFigure(point).Type)
             {
                 case FigureType.Pawn: return FindPawnWays(point, color, side);
+                case FigureType.Bishop: return FindBishopWays(point, color);
+                case FigureType.Rook: return FindRookWays(point, color);
+
 
                 default: return new List<Way>();
             }
+        }
+        public List<Way> FindBishopWays(Point point, Color color)
+        {
+            List<Diraction> diractions = new List<Diraction>
+            {
+                Diraction.LeftUp,
+                Diraction.LeftDown,
+                Diraction.RightUp,
+                Diraction.RightDown
+            };
+            return DiractedWays(color, point, diractions);
+        }
+        public List<Way> FindRookWays(Point point, Color color)
+        {
+            List<Diraction> dirations = new List<Diraction>
+            {
+                Diraction.Up,
+                Diraction.Down,
+                Diraction.Left,
+                Diraction.Right
+            };
+            return DiractedWays(color, point, dirations);
         }
         public List<Way> FindPawnWays(Point point, Color color, Side side)
         {
@@ -238,18 +263,13 @@ namespace Chess
             }
             return resultWays;
         }
-        public List<Way> VerticalMovements(Color playerColor, Point point)
-        {
-            Point curPoint = new Point(point);
+        public List<Way> DiractedWays(Color playerColor, Point point, List<Diraction> dirs)
+        {            
             List<Way> ways = new List<Way>();
             Figure figure = CellFigure(point);
-            List<Diraction> dirs = new List<Diraction>
-            {
-                Diraction.Up,
-                Diraction.Down
-            };
             foreach (Diraction dir in dirs)
             {
+                Point curPoint = new Point(point);
                 bool endOfPass = false;
                 while (!endOfPass)
                 {
