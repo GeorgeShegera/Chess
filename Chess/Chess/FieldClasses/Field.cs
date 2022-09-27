@@ -12,6 +12,7 @@ using static Chess.Game;
 namespace Chess
 {
     [Serializable]
+    public delegate List<Way> FigureWays(Point point, Color color);
     public class Field
     {
         [JsonProperty("Cells")]
@@ -182,35 +183,144 @@ namespace Chess
             {
                 return new List<Way>();
             }
+            FigureWays figureWays;
             switch (CellFigure(point).Type)
             {
                 case FigureType.Pawn: return FindPawnWays(point, color, side);
-                case FigureType.Bishop: return FindBishopWays(point, color);
-                case FigureType.Rook: return FindRookWays(point, color);
-
-
-                default: return new List<Way>();
+                case FigureType.Bishop:
+                    {
+                        figureWays = FindBishopWays;
+                    }
+                    break;
+                case FigureType.Rook:
+                    {
+                        figureWays = FindRookWays;
+                    }
+                    break;
+                case FigureType.Queen:
+                    {
+                        figureWays = FindQueenWays;
+                    }
+                    break;
+                case FigureType.Knight:
+                    {
+                        figureWays = FindKnightWays;
+                    }
+                    break;
+                default:
+                    {
+                        figureWays = null;
+                    }
+                    break;
             }
+            return figureWays?.Invoke(point, color);
+        }
+        public List<Way> FindKnightWays(Point point, Color color)
+        {
+            List<Way> ways = new List<Way>();
+            List<List<Direction>> dirs = new List<List<Direction>>
+            {
+                new List<Direction>
+                {
+                    Direction.Left,
+                    Direction.LeftDown
+                },
+                new List<Direction>
+                {
+                    Direction.Left,
+                    Direction.LeftUp
+                },
+                new List<Direction>
+                {
+                    Direction.Right,
+                    Direction.RightDown
+                },
+                new List<Direction>
+                {
+                    Direction.Right,
+                    Direction.RightUp
+                },
+                new List<Direction>
+                {
+                    Direction.Up,
+                    Direction.RightUp
+                },
+                new List<Direction>
+                {
+                    Direction.Up,
+                    Direction.LeftUp
+                },
+                new List<Direction>
+                {
+                    Direction.Down,
+                    Direction.LeftDown
+                },
+                new List<Direction>
+                {
+                    Direction.Down,
+                    Direction.RightDown
+                }
+            };
+            foreach (List<Direction> directions in dirs)
+            {
+                Point curPoint = new Point(point);
+                foreach (Direction dir in directions)
+                {
+                    curPoint.MovePoint(dir);
+                }
+                bool attackWay = false;
+                if (VerifyPoint(curPoint))
+                {
+                    if (!EmptyCell(curPoint))
+                    {
+                        if (CellFigure(curPoint).Color != color)
+                        {
+                            attackWay = true;
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    ways.Add(new Way(CellFigure(point), point, curPoint, attackWay));
+                }
+            }
+            return ways;
+        }
+        public List<Way> FindQueenWays(Point point, Color color)
+        {
+            List<Direction> diractions = new List<Direction>
+            {
+                Direction.Left,
+                Direction.Right,
+                Direction.Up,
+                Direction.Down,
+                Direction.RightUp,
+                Direction.RightDown,
+                Direction.LeftDown,
+                Direction.LeftUp
+            };
+            return DiractedWays(color, point, diractions);
         }
         public List<Way> FindBishopWays(Point point, Color color)
         {
-            List<Diraction> diractions = new List<Diraction>
+            List<Direction> diractions = new List<Direction>
             {
-                Diraction.LeftUp,
-                Diraction.LeftDown,
-                Diraction.RightUp,
-                Diraction.RightDown
+                Direction.LeftUp,
+                Direction.LeftDown,
+                Direction.RightUp,
+                Direction.RightDown
             };
             return DiractedWays(color, point, diractions);
         }
         public List<Way> FindRookWays(Point point, Color color)
         {
-            List<Diraction> dirations = new List<Diraction>
+            List<Direction> dirations = new List<Direction>
             {
-                Diraction.Up,
-                Diraction.Down,
-                Diraction.Left,
-                Diraction.Right
+                Direction.Up,
+                Direction.Down,
+                Direction.Left,
+                Direction.Right
             };
             return DiractedWays(color, point, dirations);
         }
@@ -219,24 +329,24 @@ namespace Chess
             Figure figure = CellFigure(point);
             Point curPoint = new Point(point);
             List<Way> resultWays = new List<Way>();
-            Diraction verticalDir;
-            List<Diraction> diagDirs;
+            Direction verticalDir;
+            List<Direction> diagDirs;
             if (side == Side.Bottom)
             {
-                verticalDir = Diraction.Up;
-                diagDirs = new List<Diraction>
+                verticalDir = Direction.Up;
+                diagDirs = new List<Direction>
                 {
-                    Diraction.RightUp,
-                    Diraction.LeftUp
+                    Direction.RightUp,
+                    Direction.LeftUp
                 };
             }
             else
             {
-                verticalDir = Diraction.Down;
-                diagDirs = new List<Diraction>
+                verticalDir = Direction.Down;
+                diagDirs = new List<Direction>
                 {
-                    Diraction.RightDown,
-                    Diraction.LeftDown
+                    Direction.RightDown,
+                    Direction.LeftDown
                 };
             }
             curPoint.MovePoint(verticalDir);
@@ -250,8 +360,8 @@ namespace Chess
                 {
                     resultWays.Add(new Way(figure, point, curPoint, false));
                 }
-            }            
-            foreach(Diraction dir in diagDirs)
+            }
+            foreach (Direction dir in diagDirs)
             {
                 curPoint = new Point(point);
                 curPoint.MovePoint(dir);
@@ -263,11 +373,11 @@ namespace Chess
             }
             return resultWays;
         }
-        public List<Way> DiractedWays(Color playerColor, Point point, List<Diraction> dirs)
-        {            
+        public List<Way> DiractedWays(Color playerColor, Point point, List<Direction> dirs)
+        {
             List<Way> ways = new List<Way>();
             Figure figure = CellFigure(point);
-            foreach (Diraction dir in dirs)
+            foreach (Direction dir in dirs)
             {
                 Point curPoint = new Point(point);
                 bool endOfPass = false;
@@ -295,6 +405,29 @@ namespace Chess
                 }
             }
             return ways;
+        }
+        //public bool KingInCheck(Color color)
+        //{
+        //    Point point = KingPoint(color);
+
+        //}
+        public Point KingPoint(Color color)
+        {
+            for (int i = 0; i < Cells.Count; i++)
+            {
+                for (int j = 0; j < Cells[i].Count; j++)
+                {
+                    Point curPoint = new Point(j, i);
+                    Figure curFigure = CellFigure(curPoint);
+                    if (!EmptyCell(curPoint) &&
+                        curFigure.Color == color &&
+                        curFigure.Type == FigureType.King)
+                    {
+                        return curPoint;
+                    }
+                }
+            }
+            return new Point();
         }
         public Cell this[Point point]
         {

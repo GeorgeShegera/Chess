@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Chess
 {
-    public enum Diraction
+    public enum Direction
     {
         Up,
         Down,

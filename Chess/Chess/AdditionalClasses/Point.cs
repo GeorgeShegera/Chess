@@ -28,49 +28,54 @@ namespace Chess
             CoordX = point.CoordX;
             CoordY = point.CoordY;
         }
-        public void MovePoint(Diraction dir)
+        public Point()
+        {
+            CoordX = 0;
+            CoordY = 0;
+        }
+        public void MovePoint(Direction dir)
         {
             switch (dir)
             {
-                case Diraction.Up:
+                case Direction.Up:
                     {
                         CoordY--;
                     }
                     break;
-                case Diraction.Down:
+                case Direction.Down:
                     {
                         CoordY++;
                     }
                     break;
-                case Diraction.Right:
+                case Direction.Right:
                     {
                         CoordX++;
                     }
                     break;
-                case Diraction.Left:
+                case Direction.Left:
                     {
                         CoordX--;
                     }
                     break;
-                case Diraction.RightUp:
+                case Direction.RightUp:
                     {
                         CoordX++;
                         CoordY--;
                     }
                     break;
-                case Diraction.LeftUp:
+                case Direction.LeftUp:
                     {
                         CoordX--;
                         CoordY--;
                     }
                     break;
-                case Diraction.RightDown:
+                case Direction.RightDown:
                     {
                         CoordX++;
                         CoordY++;
                     }
                     break;
-                case Diraction.LeftDown:
+                case Direction.LeftDown:
                     {
                         CoordX--;
                         CoordY++;
