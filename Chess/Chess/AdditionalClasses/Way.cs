@@ -40,6 +40,16 @@ namespace Chess
             };
             AttackWay = attackWay;
         }
+        public Way(Figure figure, Point prevPoint, Point newPoint)
+        {
+            Figure = figure;
+            WayPoints = new List<Point>
+            {
+                new Point(prevPoint),
+                new Point(newPoint)
+            };
+            AttackWay = false;
+        }
         public Point NewPlace()
         {
             return WayPoints.Last();

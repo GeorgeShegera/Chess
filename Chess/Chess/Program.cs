@@ -120,13 +120,6 @@ namespace Chess
 
         static void Main(string[] args)
         {
-            Field field = new Field();
-            field.Fill(8, 8, Color.White);
-            field[new Point(3, 3)].IsEmpty = false;
-            field[new Point(3, 3)].Figure = new Figure(Color.White, FigureType.Knight, false);
-            field.Show();
-            field.FindKnightWays(new Point(3, 3), Color.White);
-            Console.ReadLine();
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)
