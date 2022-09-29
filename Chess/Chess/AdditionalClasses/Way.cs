@@ -18,17 +18,23 @@ namespace Chess
 
         [JsonProperty("AttackWay")]
         public bool AttackWay { get; set; }
-        public Way(Figure figure, List<Point> wayPoints, bool attackWay)
+
+        [JsonProperty("SpecialWay")]    
+        public bool SpecialWay { get; set; }
+
+        public Way(Figure figure, List<Point> wayPoints, bool attackWay, bool specialWay)
         {
             Figure = figure;
             WayPoints = wayPoints;
             AttackWay = attackWay;
+            SpecialWay = specialWay;
         }
         public Way()
         {
             Figure = new Figure();
             WayPoints = new List<Point>();
             AttackWay = false;
+            SpecialWay = false;
         }
         public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay)
         {
@@ -39,8 +45,9 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = attackWay;
+            SpecialWay = false;
         }
-        public Way(Figure figure, Point prevPoint, Point newPoint)
+        public Way(bool specialWay, Figure figure, Point prevPoint, Point newPoint)
         {
             Figure = figure;
             WayPoints = new List<Point>
@@ -49,6 +56,7 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = false;
+            SpecialWay = specialWay;
         }
         public Point NewPlace()
         {

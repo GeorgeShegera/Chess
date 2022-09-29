@@ -122,9 +122,23 @@ namespace Chess
         {
             Field field = new Field();
             field.Fill(8, 8, Color.White);
+            field[new Point(5, 7)].IsEmpty = true;
+            field[new Point(6, 7)].IsEmpty = true;
+            field[new Point(7, 6)].IsEmpty = true;
+            field[new Point(6, 6)].IsEmpty = true;
+            field[new Point(5, 6)].IsEmpty = true;
+            field[new Point(4, 6)].IsEmpty = true;
+            field[new Point(1, 7)].IsEmpty = true;
+            field[new Point(2, 7)].IsEmpty = true;
+            field[new Point(3, 7)].IsEmpty = true;
+            field[new Point(1, 6)].IsEmpty = true;
+            field[new Point(3, 6)].IsEmpty = true;
+            field[new Point(6, 4)].IsEmpty = false;
+            field[new Point(6, 4)].Figure = new Figure(Color.White, FigureType.Rook, false);
+            field[new Point(1, 4)].IsEmpty = false;
+            field[new Point(1, 4)].Figure = new Figure(Color.White, FigureType.Rook, false);
             field.Show();
-            field.FindAllWays(Color.White, Side.Top);
-            Console.ReadLine();
+            List<Way> ways = field.FindCastling(Color.Black, Side.Bottom);
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)
