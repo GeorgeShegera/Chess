@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -190,6 +191,35 @@ namespace Chess
             coordX = Char.ToLower(coordX);
             return new Point(coordX - 'a', Cells.Count - coordY);
         }
+
+        public List<Way> FindAllWays(Color playerColor, Side playerSide)
+        {
+            List<Way> result = new List<Way>();
+            List<Point> points = FindPiecesPoints(playerColor);
+            foreach (Point point in points)
+            {
+                result.AddRange(FigureWays(point, playerColor, playerSide));
+            }
+            return result;
+        }
+
+        public List<Point> FindPiecesPoints(Color playerColor)
+        {
+            List<Point> points = new List<Point>();
+            for (int i = 0; i < Cells.Count; i++)
+            {
+                for (int j = 0; j < Cells[i].Count; j++)
+                {
+                    Point curPoint = new Point(j, i);
+                    if (!EmptyCell(curPoint) &&
+                       CellFigure(curPoint).Color == playerColor)
+                    {
+                        points.Add(curPoint);
+                    }
+                }
+            }
+            return points;
+        }
         public List<Way> FigureWays(Point point, Color color, Side side)
         {
             if (EmptyCell(point))
@@ -252,17 +282,7 @@ namespace Chess
         public List<Way> FindKingWays(Point point, Color color)
         {
             List<Way> ways = new List<Way>();
-            List<Direction> dirs = new List<Direction>
-            {
-                Direction.Left,
-                Direction.Right,
-                Direction.Up,
-                Direction.Down,
-                Direction.RightUp,
-                Direction.RightDown,
-                Direction.LeftDown,
-                Direction.LeftUp
-            };
+            List<Direction> dirs = AllDirections();
             foreach (Direction dir in dirs)
             {
                 Point curPoint = new Point(point);
@@ -354,7 +374,7 @@ namespace Chess
                 Direction.RightDown
             };
             return DiractedWays(color, point, diractions);
-        } 
+        }
 
         public List<Way> FindRookWays(Point point, Color color)
         {
@@ -367,6 +387,7 @@ namespace Chess
             };
             return DiractedWays(color, point, dirations);
         }
+
         public List<Way> FindPawnWays(Point point, Color color, Side side)
         {
             Figure figure = CellFigure(point);
@@ -408,7 +429,9 @@ namespace Chess
             {
                 curPoint = new Point(point);
                 curPoint.MovePoint(dir);
-                if (VerifyNewPlace(curPoint, color))
+                if (VerifyPoint(curPoint) &&
+                    !EmptyCell(curPoint) &&
+                    CellFigure(curPoint).Color != color)
                 {
                     resultWays.Add(new Way(figure, point, curPoint, true));
                 }
@@ -429,6 +452,10 @@ namespace Chess
                     {
                         ways.Add(new Way(CellFigure(point), point, curPoint));
                         VerifyAttack(ways.Last(), playerColor);
+                    }
+                    else
+                    {
+                        endOfPass = true;
                     }
                 }
             }

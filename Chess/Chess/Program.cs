@@ -120,6 +120,11 @@ namespace Chess
 
         static void Main(string[] args)
         {
+            Field field = new Field();
+            field.Fill(8, 8, Color.White);
+            field.Show();
+            field.FindAllWays(Color.White, Side.Top);
+            Console.ReadLine();
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)

@@ -30,5 +30,9 @@ namespace Chess
             IsEmpty = isEmpty;
             Track = track;
         }
+        public Color FigureColor()
+        {
+            return Figure.Color;
+        }
     }
 }
