@@ -113,7 +113,7 @@ namespace Chess
                 {
                     if (Cells[i][j].Track)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkYellow;
+                        Console.BackgroundColor = ConsoleColor.Yellow;
                     }
                     else if (Cells[i][j].Color == Color.White)
                     {
@@ -183,7 +183,7 @@ namespace Chess
         {
             return this[point].IsEmpty;
         }
-        
+
         public Figure CellFigure(Point point)
         {
             return this[point].Figure;
@@ -504,6 +504,24 @@ namespace Chess
             {
                 curPoint = new Point(point);
                 curPoint.MovePoint(dir);
+                bool enPassant;
+                if(VerifyPoint(curPoint))
+                {
+                    if(!EmptyCell(curPoint) &&
+                        CellFigure(curPoint).Color != color)
+                    {
+                        enPassant = false;
+                    }
+                    else if(VerifyEnPassant(curPoint, verticalDir))
+                    {
+                        enPassant = true;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    resultWays.Add(new Way(figure, point, curPoint, true, enPassant));
+                }    
                 if (VerifyPoint(curPoint) &&
                     !EmptyCell(curPoint) &&
                     CellFigure(curPoint).Color != color)
@@ -512,6 +530,17 @@ namespace Chess
                 }
             }
             return resultWays;
+        }
+        public bool VerifyEnPassant(Point point, Direction dir)
+        {
+            Point prevPoint = new Point(point, dir);
+            Point newPoint = new Point(point, Program.OppositeDirection(dir));
+            return VerifyPoint(prevPoint) &&
+                   VerifyPoint(newPoint) &&
+                   this[prevPoint].Track &&
+                   this[newPoint].Track &&
+                   !EmptyCell(newPoint) &&
+                   CellFigure(newPoint).Type == FigureType.Pawn;
         }
         public List<Way> DiractedWays(Color playerColor, Point point, List<Direction> dirs)
         {

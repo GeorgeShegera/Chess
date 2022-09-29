@@ -33,6 +33,12 @@ namespace Chess
             CoordX = 0;
             CoordY = 0;
         }
+        public Point(Point point, Direction dir)
+        {
+            CoordX = point.CoordX;
+            CoordY = point.CoordY;
+            MovePoint(dir);
+        }
         public void MovePoint(Direction dir)
         {
             switch (dir)

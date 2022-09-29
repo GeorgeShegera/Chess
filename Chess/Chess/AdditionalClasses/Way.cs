@@ -22,10 +22,14 @@ namespace Chess
         [JsonProperty("SpecialWay")]    
         public bool SpecialWay { get; set; }
 
-        public Way(Figure figure, List<Point> wayPoints, bool attackWay, bool specialWay)
+        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, bool specialWay)
         {
             Figure = figure;
-            WayPoints = wayPoints;
+            WayPoints = new List<Point>
+            {
+                new Point(prevPoint),
+                new Point(newPoint)
+            };
             AttackWay = attackWay;
             SpecialWay = specialWay;
         }

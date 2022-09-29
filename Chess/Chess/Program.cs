@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -61,6 +62,21 @@ namespace Chess
             else
             {
                 return Side.Top;
+            }
+        }
+        public static Direction OppositeDirection(Direction dir)
+        {
+            switch (dir)
+            {
+                case Direction.Up: return Direction.Down;
+                case Direction.Down: return Direction.Up;
+                case Direction.Left: return Direction.Right;
+                case Direction.Right: return Direction.Left;
+                case Direction.RightUp: return Direction.LeftDown;
+                case Direction.RightDown: return Direction.LeftUp;
+                case Direction.LeftUp: return Direction.RightDown;
+                case Direction.LeftDown: return Direction.RightUp;
+                default: return new Direction();
             }
         }
         private static Player Authorization(DataBase dataBase)
@@ -122,23 +138,20 @@ namespace Chess
         {
             Field field = new Field();
             field.Fill(8, 8, Color.White);
-            field[new Point(5, 7)].IsEmpty = true;
-            field[new Point(6, 7)].IsEmpty = true;
-            field[new Point(7, 6)].IsEmpty = true;
-            field[new Point(6, 6)].IsEmpty = true;
-            field[new Point(5, 6)].IsEmpty = true;
-            field[new Point(4, 6)].IsEmpty = true;
-            field[new Point(1, 7)].IsEmpty = true;
-            field[new Point(2, 7)].IsEmpty = true;
-            field[new Point(3, 7)].IsEmpty = true;
-            field[new Point(1, 6)].IsEmpty = true;
             field[new Point(3, 6)].IsEmpty = true;
-            field[new Point(6, 4)].IsEmpty = false;
-            field[new Point(6, 4)].Figure = new Figure(Color.White, FigureType.Rook, false);
+            field[new Point(3, 6)].Track = true;
+            field[new Point(3, 4)].IsEmpty = false;
+            field[new Point(3, 4)].Track = true;
             field[new Point(1, 4)].IsEmpty = false;
-            field[new Point(1, 4)].Figure = new Figure(Color.White, FigureType.Rook, false);
+            field[new Point(1, 4)].Figure = new Figure(Color.Black, FigureType.Pawn, false);
+            field[new Point(1, 4)].Track = true;
+            field[new Point(1, 5)].Track = true;
+            field[new Point(3, 4)].Figure = new Figure(Color.Black, FigureType.Queen, false);
+            field[new Point(2, 4)].IsEmpty = false;
+            field[new Point(2, 4)].Figure = new Figure(Color.White, FigureType.Pawn, false);
             field.Show();
-            List<Way> ways = field.FindCastling(Color.Black, Side.Bottom);
+            field.FindPawnWays(new Point(2, 4), Color.White, Side.Top);
+            Console.ReadLine();
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)
