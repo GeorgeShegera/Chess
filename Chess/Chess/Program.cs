@@ -80,7 +80,7 @@ namespace Chess
             }
         }
         private static Player Authorization(DataBase dataBase)
-        {            
+        {
             string login;
             string password;
             while (true)

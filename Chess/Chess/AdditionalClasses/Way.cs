@@ -11,7 +11,7 @@ namespace Chess
     public class Way
     {
         [JsonProperty("Figure")]
-        public Figure Figure { get; set; }
+        public ChessPiece ChessPiece { get; set; }
 
         [JsonProperty("WayPoints")]
         public List<Point> WayPoints { get; set; }
@@ -19,15 +19,18 @@ namespace Chess
         [JsonProperty("AttackWay")]
         public bool AttackWay { get; set; }
 
+        [JsonProperty("EnChessPiece")]
+        public ChessPiece EnChessPiece { get; set; }
+
         [JsonProperty("SpecialType")]
         public SpecialWayType SpecialType { get; set; }
 
         [JsonProperty("Direction")]
         public Direction Direction { get; set; }
 
-        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, SpecialWayType specialType, Direction direction)
+        public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, SpecialWayType specialType, Direction direction, ChessPiece enChPiece)
         {
-            Figure = figure;
+            ChessPiece = chPiece;
             WayPoints = new List<Point>
             {
                 new Point(prevPoint),
@@ -36,17 +39,34 @@ namespace Chess
             AttackWay = attackWay;
             SpecialType = specialType;
             Direction = direction;
+            ChessPiece = chPiece;
         }
+        public Way(ChessPiece chessPiece, Point prevPoint, Point newPoint, SpecialWayType specialType, Direction direction)
+        {
+            ChessPiece = chessPiece;
+            WayPoints = new List<Point>
+            {
+                new Point(prevPoint),
+                new Point(newPoint)
+            };
+            AttackWay = false;
+            EnChessPiece = new ChessPiece();
+            SpecialType = specialType;
+            Direction = direction;
+        }
+
         public Way()
         {
-            Figure = new Figure();
+            ChessPiece = new ChessPiece();
+            EnChessPiece = new ChessPiece();
             WayPoints = new List<Point>();
             AttackWay = false;
-            SpecialType = new SpecialWayType();
+            SpecialType = new SpecialWayType();            
         }
-        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, Direction direction)
+        public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, Direction direction, ChessPiece enChPiece)
         {
-            Figure = figure;
+            ChessPiece = chPiece;
+            EnChessPiece = enChPiece;
             WayPoints = new List<Point>
             {
                 new Point(prevPoint),
@@ -56,9 +76,10 @@ namespace Chess
             Direction = direction;
             SpecialType = new SpecialWayType();
         }
-        public Way(Figure figure, Point prevPoint, Point newPoint, Direction direction)
+        public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, Direction direction)
         {
-            Figure = figure;
+            ChessPiece = chPiece;
+            EnChessPiece = new ChessPiece();
             WayPoints = new List<Point>
             {
                 new Point(prevPoint),

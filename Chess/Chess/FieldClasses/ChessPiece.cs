@@ -7,27 +7,33 @@ using Newtonsoft.Json;
 
 namespace Chess
 {
-    public class Figure
+    public class ChessPiece
     {
         [JsonProperty("Color")]
         public Color Color { get; set; }
 
         [JsonProperty("Type")]
-        public FigureType Type { get; set; }
+        public ChessPieceType Type { get; set; }
 
         [JsonProperty("FirstMove")]
         public bool FirstMove { get; set; }
 
-        public Figure(Color color, FigureType type, bool firstMove)
+        public ChessPiece(Color color, ChessPieceType type, bool firstMove)
         {
             Color = color;
             Type = type;
             FirstMove = firstMove;
         }
-        public Figure()
+        public ChessPiece(Color color, ChessPieceType type)
+        {
+            Color = color;
+            Type = type;
+            FirstMove = false;
+        }
+        public ChessPiece()
         {
             Color = new Color();
-            Type = new FigureType();
+            Type = new ChessPieceType();
             FirstMove = true;
         }
     }

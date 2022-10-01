@@ -269,7 +269,7 @@ namespace Chess
         {
             return GameField.VerifyPoint(point) &&
                    !GameField.EmptyCell(point) &&
-                   GameField.CellFigure(point).Color == playerColor;
+                   GameField.CellChessPiece(point).Color == playerColor;
         }
     }
 }

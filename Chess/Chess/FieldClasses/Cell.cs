@@ -14,7 +14,7 @@ namespace Chess
         public Color Color { get; set; }
 
         [JsonProperty("Figure")]
-        public Figure Figure { get; set; }
+        public ChessPiece ChessPiece { get; set; }
 
         [JsonProperty("IsEmpty")]
         public bool IsEmpty { get; set; }
@@ -23,16 +23,16 @@ namespace Chess
         public bool Track { get; set; }
 
 
-        public Cell(Color color, Figure figure, bool isEmpty, bool track)
+        public Cell(Color color, ChessPiece figure, bool isEmpty, bool track)
         {
             Color = color;
-            Figure = figure;
+            ChessPiece = figure;
             IsEmpty = isEmpty;
             Track = track;
-        }
+        }        
         public Color FigureColor()
         {
-            return Figure.Color;
+            return ChessPiece.Color;
         }
     }
 }
