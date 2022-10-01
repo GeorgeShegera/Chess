@@ -80,7 +80,7 @@ namespace Chess
             }
         }
         private static Player Authorization(DataBase dataBase)
-        {
+        {            
             string login;
             string password;
             while (true)
@@ -136,22 +136,6 @@ namespace Chess
 
         static void Main(string[] args)
         {
-            Field field = new Field();
-            field.Fill(8, 8, Color.White);
-            field[new Point(3, 6)].IsEmpty = true;
-            field[new Point(3, 6)].Track = true;
-            field[new Point(3, 4)].IsEmpty = false;
-            field[new Point(3, 4)].Track = true;
-            field[new Point(1, 4)].IsEmpty = false;
-            field[new Point(1, 4)].Figure = new Figure(Color.Black, FigureType.Pawn, false);
-            field[new Point(1, 4)].Track = true;
-            field[new Point(1, 5)].Track = true;
-            field[new Point(3, 4)].Figure = new Figure(Color.Black, FigureType.Queen, false);
-            field[new Point(2, 4)].IsEmpty = false;
-            field[new Point(2, 4)].Figure = new Figure(Color.White, FigureType.Pawn, false);
-            field.Show();
-            field.FindPawnWays(new Point(2, 4), Color.White, Side.Top);
-            Console.ReadLine();
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)

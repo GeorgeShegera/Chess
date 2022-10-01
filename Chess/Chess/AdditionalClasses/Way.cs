@@ -19,10 +19,13 @@ namespace Chess
         [JsonProperty("AttackWay")]
         public bool AttackWay { get; set; }
 
-        [JsonProperty("SpecialWay")]    
-        public bool SpecialWay { get; set; }
+        [JsonProperty("SpecialType")]
+        public SpecialWayType SpecialType { get; set; }
 
-        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, bool specialWay)
+        [JsonProperty("Direction")]
+        public Direction Direction { get; set; }
+
+        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, SpecialWayType specialType, Direction direction)
         {
             Figure = figure;
             WayPoints = new List<Point>
@@ -31,16 +34,17 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = attackWay;
-            SpecialWay = specialWay;
+            SpecialType = specialType;
+            Direction = direction;
         }
         public Way()
         {
             Figure = new Figure();
             WayPoints = new List<Point>();
             AttackWay = false;
-            SpecialWay = false;
+            SpecialType = new SpecialWayType();
         }
-        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay)
+        public Way(Figure figure, Point prevPoint, Point newPoint, bool attackWay, Direction direction)
         {
             Figure = figure;
             WayPoints = new List<Point>
@@ -49,9 +53,10 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = attackWay;
-            SpecialWay = false;
+            Direction = direction;
+            SpecialType = new SpecialWayType();
         }
-        public Way(bool specialWay, Figure figure, Point prevPoint, Point newPoint)
+        public Way(Figure figure, Point prevPoint, Point newPoint, Direction direction)
         {
             Figure = figure;
             WayPoints = new List<Point>
@@ -60,7 +65,8 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = false;
-            SpecialWay = specialWay;
+            SpecialType = new SpecialWayType();
+            Direction = direction;
         }
         public Point NewPlace()
         {
