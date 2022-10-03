@@ -22,6 +22,11 @@ namespace Chess
         [JsonProperty("Track")]
         public bool Track { get; set; }
 
+        [JsonProperty("WayPoint")]
+        public bool WayPoint { get; set; }
+
+        [JsonProperty("ChosenPiece")]
+        public bool ChosenPoint { get; set; }
 
         public Cell(Color color, ChessPiece figure, bool isEmpty, bool track)
         {
@@ -29,6 +34,8 @@ namespace Chess
             ChessPiece = figure;
             IsEmpty = isEmpty;
             Track = track;
+            WayPoint = false;
+            ChosenPoint = false;
         }        
         public Color FigureColor()
         {

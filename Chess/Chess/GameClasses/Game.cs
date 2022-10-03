@@ -26,6 +26,7 @@ namespace Chess
 
         [JsonProperty("Bot")]
         public Bot Bot { get; set; }
+        
 
         public Game(Field gameField, Player firstPlayer, Player secondPlayer, bool vsBot, Bot bot)
         {
@@ -216,60 +217,88 @@ namespace Chess
         {
             SecondPlayer = new Player();
         }
+
         public void StartGame(Color playerColor)
         {
             GameField = new Field();
             GameField.Fill(8, 8, playerColor);
             Color curColor = Color.White;
+            Side curSide;
             while (true)
             {
                 Console.Clear();
                 GameField.Show();
                 bool endOfTurn = false;
+                string introduction;
+                if (curColor == FirstPlayer.Color)
+                {                    
+                    introduction = $"Turn of: {FirstPlayer.Login}({curColor}).\n";
+                    curSide = FirstPlayer.Side;
+                }
+                else
+                {
+                    introduction = $"Turn of: {SecondPlayer.Login}({curColor}).\n";                    
+                    curSide = SecondPlayer.Side;
+                }
+                PrintMessange(introduction, ConsoleColor.Magenta);
                 while (!endOfTurn)
                 {
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    if (curColor == FirstPlayer.Color)
+                    PrintMessange("Choose your chess piece.\n", ConsoleColor.Cyan);
+                    Point piecePoint = RequestCoords();
+                    if(GameField.EmptyCell(piecePoint) ||
+                       GameField.CellChessPiece(piecePoint).Color != curColor)
                     {
-                        Console.WriteLine($"Turn of: {FirstPlayer.Login}({curColor})");
+                        PrintMessange("Here is not your chess piece, try again.\n", ConsoleColor.Red);                        
+                        Console.ReadKey();
+                        continue;
                     }
-                    else
+                    List<Way> ways = GameField.LegalPieceWays(piecePoint, curColor, curSide);
+                    if(ways.Count == 0)
                     {
-                        Console.WriteLine($"Turn of: {SecondPlayer.Login}({curColor})");
+                        PrintMessange("The chosen chess piece can't move, chose another chess pice.\n", ConsoleColor.Red);
+                        Console.ReadKey();
+                        continue;
                     }
-                    while (true)
+                    GameField.MarkWays(ways);
+                    GameField.Show();
+                    PrintMessange("Choose a new place.\n", ConsoleColor.Cyan);
+                    Point newPlace = RequestCoords();
+                    if (!ways.Any(x => x.NewPlace() == newPlace))
                     {
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        Console.WriteLine("Select your chess piece");
-                        Console.ResetColor();
-                        Point point = RequestCoords();
-                        if (!VerifyPoint(point, curColor))
-                        {
-                            Console.WriteLine("Invalid coords");
-                        }
-                        else
-                        {
-                            break;
-                        }
+                        PrintMessange("You can't move your chess piece like that.\n", ConsoleColor.Red);
                     }
 
                 }
                 curColor = Program.SwitchColor(curColor);
             }
-        }
+        }        
         public Point RequestCoords()
         {
-            Console.Write("Input the first coord(letter): ");
-            char.TryParse(Console.ReadLine(), out char coordX);
-            Console.Write("Input the second coord(number): ");
-            int.TryParse(Console.ReadLine(), out int coordY);
-            return GameField.ConvertCoords(coordY, coordX);
+            Point point;
+            while (true)
+            {                
+                PrintMessange("Input the first coord(letter): ", ConsoleColor.Green);
+                char.TryParse(Console.ReadLine(), out char coordX);                
+                PrintMessange("Input the second coord(number): ", ConsoleColor.Green);
+                int.TryParse(Console.ReadLine(), out int coordY);
+                point = GameField.ConvertCoords(coordY, coordX);
+                if (GameField.VerifyPoint(point))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.Beep();
+                    PrintMessange("Invalid coords, try again.\n", ConsoleColor.Red);
+                }
+            }
+            return point;
         }
-        public bool VerifyPoint(Point point, Color playerColor)
+        public void PrintMessange(string message, ConsoleColor col)
         {
-            return GameField.VerifyPoint(point) &&
-                   !GameField.EmptyCell(point) &&
-                   GameField.CellChessPiece(point).Color == playerColor;
+            Console.ForegroundColor = col;
+            Console.Write(message);
+            Console.ResetColor();
         }
     }
 }

@@ -136,6 +136,7 @@ namespace Chess
 
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)

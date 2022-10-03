@@ -111,9 +111,13 @@ namespace Chess
                 Console.Write(Cells.Count - i + " |");
                 for (int j = 0; j < Cells[i].Count; j++)
                 {
-                    if (Cells[i][j].Track)
+                    if (Cells[i][j].ChosenPoint)
                     {
-                        Console.BackgroundColor = ConsoleColor.Yellow;
+                        Console.BackgroundColor = ConsoleColor.DarkBlue;
+                    }
+                    else if (Cells[i][j].Track)
+                    {
+                        Console.BackgroundColor = ConsoleColor.DarkYellow;
                     }
                     else if (Cells[i][j].Color == Color.White)
                     {
@@ -133,7 +137,6 @@ namespace Chess
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
-
                         ChessPieceType type = Cells[i][j].ChessPiece.Type;
                         if (type == ChessPieceType.Pawn)
                         {
@@ -155,10 +158,15 @@ namespace Chess
                         {
                             Console.Write(" K ");
                         }
-                        else
+                        else if (type == ChessPieceType.Queen)
                         {
                             Console.Write(" Q ");
                         }
+                    }
+                    else if (Cells[i][j].WayPoint)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write(" • ");
                     }
                     else
                     {
@@ -171,7 +179,14 @@ namespace Chess
             Console.WriteLine("  --------------------------\n" +
                               "    A  B  C  D  E  F  G  H  \n");
         }
-
+        public void MarkWays(List<Way> ways)
+        {
+            this[ways.First().PrevPlace()].ChosenPoint = true;
+            foreach (Way way in ways)
+            {
+                this[way.NewPlace()].WayPoint = true;                
+            }
+        }
         public bool VerifyPoint(Point point)
         {
             return point.CoordX >= 0 && point.CoordY >= 0 &&
@@ -195,7 +210,7 @@ namespace Chess
             return new Point(coordX - 'a', Cells.Count - coordY);
         }
 
-        public List<Way> LegalWays(Color playerColor, Side playerSide)
+        public List<Way> AllLegalWays(Color playerColor, Side playerSide)
         {
             List<Way> result = new List<Way>();
             List<Way> ways = FindAllWays(playerColor, playerSide);
@@ -208,7 +223,19 @@ namespace Chess
             }
             return result;
         }
-
+        public List<Way> LegalPieceWays(Point point, Color color, Side side)
+        {
+            List<Way> allPieceWays = ChessPieceWays(point, color, side);
+            List<Way> legalWays = new List<Way>();
+            foreach(Way way in allPieceWays)
+            {
+                if(VerifyLegal(way, color, side))
+                {
+                    legalWays.Add(way);
+                }
+            }
+            return legalWays;
+        }
         public bool VerifyLegal(Way way, Color playerColor, Side playerSide)
         {
             bool inCheck = false;
@@ -323,7 +350,7 @@ namespace Chess
             List<Point> points = FindPiecesPoints(playerColor);
             foreach (Point point in points)
             {
-                result.AddRange(FigureWays(point, playerColor, playerSide));
+                result.AddRange(ChessPieceWays(point, playerColor, playerSide));
             }
             return result;
         }
@@ -346,7 +373,7 @@ namespace Chess
             return points;
         }
 
-        public List<Way> FigureWays(Point point, Color color, Side side)
+        public List<Way> ChessPieceWays(Point point, Color color, Side side)
         {
             if (EmptyCell(point))
             {
