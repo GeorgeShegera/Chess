@@ -113,7 +113,7 @@ namespace Chess
                 {
                     if (Cells[i][j].ChosenPoint)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkBlue;
+                        Console.BackgroundColor = ConsoleColor.DarkCyan;
                     }
                     else if (Cells[i][j].Track)
                     {
@@ -129,6 +129,15 @@ namespace Chess
                     }
                     if (!Cells[i][j].IsEmpty)
                     {
+                        if (Cells[i][j].WayPoint)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("(");
+                        }
+                        else
+                        {
+                            Console.Write(" ");
+                        }
                         if (Cells[i][j].ChessPiece.Color == Color.White)
                         {
                             Console.ForegroundColor = ConsoleColor.White;
@@ -140,27 +149,36 @@ namespace Chess
                         ChessPieceType type = Cells[i][j].ChessPiece.Type;
                         if (type == ChessPieceType.Pawn)
                         {
-                            Console.Write(" P ");
+                            Console.Write("P");
                         }
                         else if (type == ChessPieceType.Rook)
                         {
-                            Console.Write(" R ");
+                            Console.Write("R");
                         }
                         else if (type == ChessPieceType.Knight)
                         {
-                            Console.Write(" N ");
+                            Console.Write("N");
                         }
                         else if (type == ChessPieceType.Bishop)
                         {
-                            Console.Write(" B ");
+                            Console.Write("B");
                         }
                         else if (type == ChessPieceType.King)
                         {
-                            Console.Write(" K ");
+                            Console.Write("K");
                         }
                         else if (type == ChessPieceType.Queen)
                         {
-                            Console.Write(" Q ");
+                            Console.Write("Q");
+                        }
+                        if (Cells[i][j].WayPoint)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write(")");
+                        }
+                        else
+                        {
+                            Console.Write(" ");
                         }
                     }
                     else if (Cells[i][j].WayPoint)
@@ -184,7 +202,7 @@ namespace Chess
             this[ways.First().PrevPlace()].ChosenPoint = true;
             foreach (Way way in ways)
             {
-                this[way.NewPlace()].WayPoint = true;                
+                this[way.NewPlace()].WayPoint = true;
             }
         }
         public bool VerifyPoint(Point point)
@@ -216,7 +234,7 @@ namespace Chess
             List<Way> ways = FindAllWays(playerColor, playerSide);
             foreach (Way way in ways)
             {
-                if(VerifyLegal(way, playerColor, playerSide))
+                if (VerifyLegal(way, playerColor, playerSide))
                 {
                     result.Add(way);
                 }
@@ -227,9 +245,9 @@ namespace Chess
         {
             List<Way> allPieceWays = ChessPieceWays(point, color, side);
             List<Way> legalWays = new List<Way>();
-            foreach(Way way in allPieceWays)
+            foreach (Way way in allPieceWays)
             {
-                if(VerifyLegal(way, color, side))
+                if (VerifyLegal(way, color, side))
                 {
                     legalWays.Add(way);
                 }
@@ -258,11 +276,21 @@ namespace Chess
             }
             else
             {
-                MovePiece(way);                
-                inCheck = KingInCheck(enemyColor, enemySide);
+                MovePiece(way);
+                inCheck = KingInCheck(playerColor, playerSide);
                 ReverseMove(way);
             }
             return !inCheck;
+        }
+        public void Clear()
+        {
+            foreach (List<Cell> cells in Cells)
+            {
+                foreach (Cell cell in cells)
+                {
+                    cell.Clear();
+                }
+            }
         }
         public void ReverseMove(Way way)
         {
@@ -663,7 +691,7 @@ namespace Chess
                     {
                         ways.Add(new Way(CellChessPiece(point), point, curPoint, dir));
                         VerifyAttack(ways.Last(), playerColor);
-                        if(ways.Last().AttackWay)
+                        if (ways.Last().AttackWay)
                         {
                             endOfPass = true;
                         }
@@ -676,11 +704,22 @@ namespace Chess
             }
             return ways;
         }
-        public bool KingInCheck(Color enemyColor, Side enemySide)
+        public void MakeTurn(Way way)
         {
-            Point point = ChessPiecesPoints(Program.SwitchColor(enemyColor), ChessPieceType.King).First();
-            List<Way> enemyWays = FindAllWays(enemyColor, enemySide);
-            List<Way> enAttacks = enemyWays.Where(x => x.AttackWay).ToList();            
+            MovePiece(way);
+            ChessPiece chessPiece = CellChessPiece(way.NewPlace());
+            if (chessPiece.FirstMove)
+            {
+                chessPiece.FirstMove = false;
+            }
+            this[way.NewPlace()].Track = true;
+            this[way.PrevPlace()].Track = true;
+        }
+        public bool KingInCheck(Color playerColor, Side playerSide)
+        {
+            Point point = ChessPiecesPoints(playerColor, ChessPieceType.King).First();
+            List<Way> enemyWays = FindAllWays(Program.SwitchColor(playerColor), Program.SwitchSide(playerSide));
+            List<Way> enAttacks = enemyWays.Where(x => x.AttackWay).ToList();
             foreach (Way way in enemyWays)
             {
                 if (way.NewPlace() == point)

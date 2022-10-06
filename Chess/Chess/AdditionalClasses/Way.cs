@@ -31,6 +31,7 @@ namespace Chess
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, SpecialWayType specialType, Direction direction, ChessPiece enChPiece)
         {
             ChessPiece = chPiece;
+            EnChessPiece = enChPiece;
             WayPoints = new List<Point>
             {
                 new Point(prevPoint),
@@ -54,7 +55,19 @@ namespace Chess
             SpecialType = specialType;
             Direction = direction;
         }
-
+        public Way(Point prevPoint, Point newPoint)
+        {
+            ChessPiece = new ChessPiece();
+            WayPoints = new List<Point>
+            {
+                new Point(prevPoint),
+                new Point(newPoint)
+            };
+            AttackWay = false;
+            EnChessPiece = new ChessPiece();
+            SpecialType = new SpecialWayType();
+            Direction = new Direction();
+        }
         public Way()
         {
             ChessPiece = new ChessPiece();
@@ -96,6 +109,16 @@ namespace Chess
         public Point PrevPlace()
         {
             return WayPoints.First();
+        }
+        public static bool operator ==(Way wayFirst, Way waySecond)
+        {
+            return wayFirst.NewPlace() == waySecond.NewPlace() &&
+                   wayFirst.PrevPlace() == waySecond.PrevPlace();
+        }
+        public static bool operator !=(Way wayFirst, Way waySecond)
+        {
+            return wayFirst.NewPlace() != waySecond.NewPlace() ||
+                   wayFirst.PrevPlace() != waySecond.PrevPlace();
         }
     }
 }

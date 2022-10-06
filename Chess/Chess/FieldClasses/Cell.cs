@@ -41,5 +41,11 @@ namespace Chess
         {
             return ChessPiece.Color;
         }
+        public void Clear()
+        {
+            WayPoint = false;
+            ChosenPoint = false;
+            Track = false;
+        }
     }
 }
