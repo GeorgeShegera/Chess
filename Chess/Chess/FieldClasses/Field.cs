@@ -111,7 +111,11 @@ namespace Chess
                 Console.Write(Cells.Count - i + " |");
                 for (int j = 0; j < Cells[i].Count; j++)
                 {
-                    if (Cells[i][j].ChosenPoint)
+                    if(Cells[i][j].KingInCheck)
+                    {
+                        Console.BackgroundColor = ConsoleColor.Red;
+                    }
+                    else if (Cells[i][j].ChosenPoint)
                     {
                         Console.BackgroundColor = ConsoleColor.DarkCyan;
                     }
@@ -728,7 +732,7 @@ namespace Chess
         }
         public bool KingInCheck(Color playerColor, Side playerSide)
         {
-            Point point = ChessPiecesPoints(playerColor, ChessPieceType.King).First();
+            Point point = KingPoint(playerColor, playerSide);
             List<Way> enemyWays = FindAllWays(Program.SwitchColor(playerColor), Program.SwitchSide(playerSide));
             List<Way> enAttacks = enemyWays.Where(x => x.AttackWay).ToList();
             foreach (Way way in enemyWays)
@@ -739,6 +743,10 @@ namespace Chess
                 }
             }
             return false;
+        }
+        public Point KingPoint(Color playerColor, Side playerSide)
+        {
+            return ChessPiecesPoints(playerColor, ChessPieceType.King).First();
         }
         public List<Point> ChessPiecesPoints(Color color, ChessPieceType figureType)
         {

@@ -28,14 +28,18 @@ namespace Chess
         [JsonProperty("ChosenPiece")]
         public bool ChosenPoint { get; set; }
 
-        public Cell(Color color, ChessPiece figure, bool isEmpty, bool track)
+        [JsonProperty("KingInCheck")]
+        public bool KingInCheck { get; set; }
+
+        public Cell(Color color, ChessPiece chessPiece, bool isEmpty, bool track)
         {
             Color = color;
-            ChessPiece = figure;
+            ChessPiece = chessPiece;
             IsEmpty = isEmpty;
             Track = track;
             WayPoint = false;
             ChosenPoint = false;
+            KingInCheck = false;
         }        
         public Color FigureColor()
         {
@@ -45,11 +49,11 @@ namespace Chess
         {
             WayPoint = false;
             ChosenPoint = false;
+            KingInCheck = false;
         }
         public void Clear()
         {
-            WayPoint = false;
-            ChosenPoint = false;
+            ClearWayPoints();
             Track = false;
         }
     }

@@ -244,6 +244,7 @@ namespace Chess
                 checkmate = GameField.Checkmate(curColor, curSide);
                 stalemate = GameField.Stalemate(curColor, curSide);
             }
+
         }
         public Way PlayerTurn(Color playerColor, Side side)
         {
@@ -251,6 +252,13 @@ namespace Chess
             while (true)
             {
                 Console.Clear();
+                if (GameField.KingInCheck(playerColor, side))
+                {
+                    Point kingPoint = GameField.KingPoint(playerColor, side);
+                    GameField[kingPoint].KingInCheck = true;
+                    Console.Beep();
+                    PrintMessange("Your king is under attack!\n", ConsoleColor.Red);
+                }                
                 PrintMessange(msgToPrint.Item1, msgToPrint.Item2);
                 GameField.Show();
                 string introduction;
@@ -263,10 +271,6 @@ namespace Chess
                     introduction = $"Turn of: {SecondPlayer.Login}({playerColor}).\n";
                 }
                 PrintMessange(introduction, ConsoleColor.Magenta);
-                if (GameField.KingInCheck(playerColor, side))
-                {
-                    PrintMessange("Your king is under attack!\n", ConsoleColor.Blue);
-                }
                 PrintMessange("Choose your chess piece.\n", ConsoleColor.Cyan);
                 Point chosenPoint = RequestCoords();
                 if (!GameField.VerifyPoint(chosenPoint))
