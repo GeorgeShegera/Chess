@@ -117,7 +117,7 @@ namespace Chess
                     }
                     else if (Cells[i][j].Track)
                     {
-                        Console.BackgroundColor = ConsoleColor.DarkYellow;
+                        Console.BackgroundColor = ConsoleColor.DarkGreen;
                     }
                     else if (Cells[i][j].Color == Color.White)
                     {
@@ -282,11 +282,21 @@ namespace Chess
             }
             return !inCheck;
         }
-        public void Clear()
+        public void ClearWayPoints()
         {
             foreach (List<Cell> cells in Cells)
             {
                 foreach (Cell cell in cells)
+                {
+                    cell.ClearWayPoints();
+                }
+            }
+        }
+        public void Clear()
+        {
+            foreach(List<Cell> cells in Cells)
+            {
+                foreach(Cell cell in cells)
                 {
                     cell.Clear();
                 }
@@ -309,7 +319,7 @@ namespace Chess
                 {
                     Direction dir;
                     if (way.Direction == Direction.LeftDown ||
-                        way.Direction == Direction.LeftUp)
+                        way.Direction == Direction.RightDown)
                     {
                         dir = Direction.Up;
                     }
@@ -346,7 +356,7 @@ namespace Chess
                 else
                 {
                     dir = Direction.Up;
-                }
+                }                
                 this[new Point(way.NewPlace(), dir)].IsEmpty = true;
             }
             this[way.NewPlace()].IsEmpty = false;
@@ -645,6 +655,7 @@ namespace Chess
                 resultWays.Add(new Way(figure, point, curPoint, verticalDir));
                 curPoint.MovePoint(verticalDir);
                 if (figure.FirstMove &&
+                    VerifyPoint(curPoint) &&
                     EmptyCell(curPoint))
                 {
                     resultWays.Add(new Way(figure, point, curPoint, verticalDir));
@@ -748,6 +759,24 @@ namespace Chess
             }
             return points;
         }
+        public bool PawnTransform(Side playerSide, Way way)
+        {
+            int lastLine;
+            if (playerSide == Side.Bottom) lastLine = 0;
+            else lastLine = Cells.Count - 1;
+            return CellChessPiece(way.PrevPlace()).Type == ChessPieceType.Pawn &&
+                   way.NewPlace().CoordY == lastLine;
+        }
+        public bool Checkmate(Color playerColor, Side playerSide)
+        {
+            return AllLegalWays(playerColor, playerSide).Count == 0 &&
+                   KingInCheck(playerColor, playerSide);
+        }
+        public bool Stalemate(Color playerColor, Side playerSide)
+        {
+            return AllLegalWays(playerColor, playerSide).Count == 0 &&
+                   KingInCheck(playerColor, playerSide);
+        }
         public Cell this[Point point]
         {
             get
@@ -759,5 +788,6 @@ namespace Chess
                 Cells[point.CoordY][point.CoordX] = value;
             }
         }
+
     }
 }

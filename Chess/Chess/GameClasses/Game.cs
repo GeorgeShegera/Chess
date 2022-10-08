@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Dynamic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -223,18 +224,30 @@ namespace Chess
             GameField = new Field();
             GameField.Fill(8, 8, playerColor);
             Color curColor = Color.White;
-            while (true)
+            Side curSide;
+            bool checkmate = false;
+            bool stalemate = false;
+            while (!checkmate || !stalemate)
             {
-                Way way = PlayerTurn(curColor);
+                if(curColor == FirstPlayer.Color)
+                {
+                    curSide = FirstPlayer.Side;
+                }
+                else
+                {
+                    curSide = SecondPlayer.Side;
+                }
+                Way way = PlayerTurn(curColor, curSide);
                 curColor = Program.SwitchColor(curColor);
+                GameField.Clear();
                 GameField.MakeTurn(way);
+                checkmate = GameField.Checkmate(curColor, curSide);
+                stalemate = GameField.Stalemate(curColor, curSide);
             }
-
         }
-        public Way PlayerTurn(Color playerColor)
+        public Way PlayerTurn(Color playerColor, Side side)
         {
             (string, ConsoleColor) msgToPrint = ("", ConsoleColor.Gray);
-            Side curSide;
             while (true)
             {
                 Console.Clear();
@@ -244,21 +257,19 @@ namespace Chess
                 if (playerColor == FirstPlayer.Color)
                 {
                     introduction = $"Turn of: {FirstPlayer.Login}({playerColor}).\n";
-                    curSide = FirstPlayer.Side;
                 }
                 else
                 {
                     introduction = $"Turn of: {SecondPlayer.Login}({playerColor}).\n";
-                    curSide = SecondPlayer.Side;
                 }
                 PrintMessange(introduction, ConsoleColor.Magenta);
-                if (GameField.KingInCheck(playerColor, curSide))
+                if (GameField.KingInCheck(playerColor, side))
                 {
                     PrintMessange("Your king is under attack!\n", ConsoleColor.Blue);
                 }
                 PrintMessange("Choose your chess piece.\n", ConsoleColor.Cyan);
                 Point chosenPoint = RequestCoords();
-                if(!GameField.VerifyPoint(chosenPoint))
+                if (!GameField.VerifyPoint(chosenPoint))
                 {
                     Console.Beep();
                     msgToPrint = ("Invalid coords, try again.\n", ConsoleColor.Red);
@@ -271,16 +282,16 @@ namespace Chess
                     msgToPrint = ("Here is not your chess piece, try again.\n", ConsoleColor.Red);
                     continue;
                 }
-                List<Way> legalWays = GameField.LegalPieceWays(chosenPoint, playerColor, curSide);
+                List<Way> legalWays = GameField.LegalPieceWays(chosenPoint, playerColor, side);
                 if (legalWays.Count == 0)
                 {
                     Console.Beep();
-                    msgToPrint = ("The chosen chess piece can't move, chose another chess pice.\n", ConsoleColor.Red);
+                    msgToPrint = ("The chosen chess piece can't move, chose another chess piece.\n", ConsoleColor.Red);
                     continue;
                 }
                 GameField.MarkWays(legalWays);
                 GameField.Show();
-                GameField.Clear();
+                GameField.ClearWayPoints();
                 PrintMessange("Choose a new place.\n", ConsoleColor.Cyan);
                 Point newPlace = RequestCoords();
                 if (!GameField.VerifyPoint(newPlace))
@@ -293,6 +304,53 @@ namespace Chess
                 {
                     // We are selecting elements to be not needed and removing them
                     Way way = legalWays.Except(legalWays.Where(x => x.NewPlace() != newPlace).ToList()).ToList().First();
+                    if (GameField.PawnTransform(side, way))
+                    {
+                        PrintMessange("Choose a new chess piece\n", ConsoleColor.Yellow);
+                        Console.WriteLine("1 - Queen\n" +
+                                          "2 - Rook\n" +
+                                          "3 - Bishop\n" +
+                                          "4 - Knight");
+                        ChessPieceType type = new ChessPieceType();
+                        bool endOfChoosing = false;
+                        while (!endOfChoosing)
+                        {
+                            endOfChoosing = true;
+                            PrintMessange("Choose an action: ", ConsoleColor.Green);                            
+                            int.TryParse(Console.ReadLine(), out int choice);
+                            switch (choice)
+                            {
+                                case 1:
+                                    {
+                                        type = ChessPieceType.Queen;
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        type = ChessPieceType.Rook;
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        type = ChessPieceType.Bishop;
+                                    }
+                                    break;
+                                case 4:
+                                    {
+                                        type = ChessPieceType.Knight;
+                                    }
+                                    break;
+                                default:
+                                    {
+                                        endOfChoosing = false;
+                                        Console.Beep();
+                                        PrintMessange("Invalid action, try again.\n", ConsoleColor.Red);
+                                    }
+                                    break;
+                            }
+                            GameField[way.PrevPlace()].ChessPiece = new ChessPiece(playerColor, type);
+                        }
+                    }
                     return way;
                 }
                 else
