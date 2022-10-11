@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -83,26 +84,30 @@ namespace Chess
 
             }
         }
+
         public void ShowMatchHistory(Player player)
         {
-            var matches = from match in Matches
-                                  where match.Winner == player || 
-                                  match.Loser == player
-                                  select match;
-            foreach(var match in matches)
-            {
-                match.Show();
-                Console.WriteLine();
-            }
+            List<Match> matches = (from match in Matches
+                                  where match.ContainsPlayer(player)
+                                  select match).ToList();
+            if (matches.Count != 0) ShowMatchces(matches);
         }
+
         public void ShowRecentMatches(int limit)
         {
-            var matches = Matches.Select(x => x).Take(limit);
-            foreach(var match in matches)
+            List<Match> matches = Matches.Select(x => x).Take(limit).ToList();
+            if (matches.Count != 0) ShowMatchces(matches);
+        }
+
+        public void ShowMatchces(List<Match> matches)
+        {
+            foreach (var match in matches)
             {
+                Console.WriteLine("-------------------------------");
                 match.Show();
                 Console.WriteLine();
             }
+            Console.WriteLine("-------------------------------");
         }
     }
 }

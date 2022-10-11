@@ -199,7 +199,7 @@ namespace Chess
                 Console.WriteLine("|" + $" {Cells.Count - i}");
             }
             Console.WriteLine("  --------------------------\n" +
-                              "    A  B  C  D  E  F  G  H  \n");
+                              "    A  B  C  D  E  F  G  H  ");
         }
         public void MarkWays(List<Way> ways)
         {
@@ -772,7 +772,7 @@ namespace Chess
             int lastLine;
             if (playerSide == Side.Bottom) lastLine = 0;
             else lastLine = Cells.Count - 1;
-            return CellChessPiece(way.PrevPlace()).Type == ChessPieceType.Pawn &&
+            return PieceType(way) == ChessPieceType.Pawn &&
                    way.NewPlace().CoordY == lastLine;
         }
         public bool Checkmate(Color playerColor, Side playerSide)
@@ -784,6 +784,10 @@ namespace Chess
         {
             return AllLegalWays(playerColor, playerSide).Count == 0 &&
                    KingInCheck(playerColor, playerSide);
+        }
+        public ChessPieceType PieceType(Way way)
+        {
+            return CellChessPiece(way.PrevPlace()).Type;
         }
         public Cell this[Point point]
         {

@@ -25,13 +25,26 @@ namespace Chess
         [JsonProperty("Rating")]
         public int Rating { get; set; }
 
-        public Player(string login, string password, Color color, Side side, int rating)
+        [JsonProperty("Winner")]
+        public bool Winner { get; set; }
+
+        public Player(string login, string password, Color color, Side side, int rating, bool winner)
         {
             Login = login;
             Password = password;
             Color = color;
             Side = side;
             Rating = rating;
+            Winner = winner;
+        }
+        public Player(Player player)
+        {
+            Login = player.Login;
+            Password = player.Password;
+            Color = player.Color;
+            Side = player.Side;
+            Rating = player.Rating;
+            Winner = player.Winner;
         }
 
         public Player(string login, string password)
@@ -41,6 +54,7 @@ namespace Chess
             Color = new Color();
             Side = new Side();
             Rating = 0;
+            Winner = false;
         }
 
         public Player()
@@ -50,6 +64,7 @@ namespace Chess
             Color = Color.White;
             Side = Side.Bottom;
             Rating = 0;
+            Winner = false;
         }
 
         public Player(int rating, string login)
@@ -59,6 +74,7 @@ namespace Chess
             Password = "";
             Color = new Color();
             Side = new Side();
+            Winner = false;
         }
         public void SwitchColor()
         {
@@ -71,6 +87,21 @@ namespace Chess
         public bool Authorized()
         {
             return Login != "" && Password != "";
+        }
+        public void AddRating(int rating)
+        {
+            Rating += rating;
+        }
+        public void SubtractRating(int rating)
+        {
+            if (Rating < rating)
+            {
+                Rating = 0;
+            }
+            else
+            {
+                Rating -= rating;
+            }
         }
         public static bool operator ==(Player player1, Player player2)
         {

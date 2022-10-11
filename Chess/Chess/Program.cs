@@ -17,7 +17,11 @@ namespace Chess
     {
         public static void SaveDataBase(DataBase dataBase)
         {
-            string json = JsonConvert.SerializeObject(dataBase);
+            JsonSerializerSettings settings = new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.All
+            };
+            string json = JsonConvert.SerializeObject(dataBase, settings);
             using (Stream stream = new FileStream("chess.json", FileMode.Create))
             {
                 using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
@@ -36,7 +40,7 @@ namespace Chess
                 {
                     while (!reader.EndOfStream)
                     {
-                        json = reader.ReadLine();
+                        json += reader.ReadLine();
                     }
                 }
             }
@@ -135,13 +139,17 @@ namespace Chess
         }
 
         static void Main(string[] args)
-        {            
+        {
             Console.OutputEncoding = Encoding.UTF8;
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
             if (data.Length != 0)
             {
-                dataBase = JsonConvert.DeserializeObject<DataBase>(data);
+                JsonSerializerSettings settings = new JsonSerializerSettings()
+                {
+                    TypeNameHandling = TypeNameHandling.All
+                };
+                dataBase = JsonConvert.DeserializeObject<DataBase>(data, settings);
             }
             while (true)
             {
@@ -241,8 +249,10 @@ namespace Chess
                                                 {
                                                     Console.WriteLine("There are not enough players");
                                                     break;
-                                                }
-                                                game.StartGame(curPlayer.Color);
+                                                }                                                
+                                                dataBase.AddMatch(game.StartGame(curPlayer.Color));
+                                                exit = true;
+                                                SaveDataBase(dataBase);                                                
                                             }
                                             break;
                                         case LobbyMenu.SwitchColor:

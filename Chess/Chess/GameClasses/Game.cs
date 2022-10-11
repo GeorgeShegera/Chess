@@ -6,7 +6,10 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using Newtonsoft.Json;
+using System.Threading;
+using System.Timers;
 
 namespace Chess
 {
@@ -219,32 +222,92 @@ namespace Chess
             SecondPlayer = new Player();
         }
 
-        public void StartGame(Color playerColor)
+        public Match StartGame(Color playerColor)
         {
+            FirstPlayer.Winner = false;
+            SecondPlayer.Winner = false;
             GameField = new Field();
             GameField.Fill(8, 8, playerColor);
             Color curColor = Color.White;
-            Side curSide;
-            bool checkmate = false;
-            bool stalemate = false;
-            while (!checkmate || !stalemate)
-            {
-                if(curColor == FirstPlayer.Color)
+            Side curSide = DefinePlayer(curColor).Side;
+            GameResult gameResult = new GameResult();
+            int uselessMoves = 0;
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            Console.ReadKey();
+            while (gameResult == 0)
+            {                
+                Way way = PlayerTurn(curColor, curSide);
+                curColor = Program.SwitchColor(curColor);
+                curSide = DefinePlayer(curColor).Side;
+                if (way.AttackWay ||
+                   GameField.PieceType(way) == ChessPieceType.Pawn)
                 {
-                    curSide = FirstPlayer.Side;
+                    uselessMoves = 0;
                 }
                 else
                 {
-                    curSide = SecondPlayer.Side;
+                    uselessMoves++;
                 }
-                Way way = PlayerTurn(curColor, curSide);
-                curColor = Program.SwitchColor(curColor);
                 GameField.Clear();
                 GameField.MakeTurn(way);
-                checkmate = GameField.Checkmate(curColor, curSide);
-                stalemate = GameField.Stalemate(curColor, curSide);
+                if (GameField.Checkmate(curColor, curSide)) gameResult = GameResult.Checkmate;
+                else if (GameField.Stalemate(curColor, curSide)) gameResult = GameResult.StaleMate;
+                else if (uselessMoves == 75) gameResult = GameResult.FiftyMoveRule;
             }
+            stopwatch.Stop();
+            TimeSpan ts = stopwatch.Elapsed;
+            Console.Clear();
+            Console.WriteLine("The end of game");
+            Player player = new Player();
+            DefinePlayer(Program.SwitchColor(curColor)).Winner = true;
+            if (!VsBot)
+            {
+                if (FirstPlayer.Winner)
+                {
+                    FirstPlayer.AddRating(30);
+                    SecondPlayer.SubtractRating(30);
+                }
+                else
+                {
+                    SecondPlayer.AddRating(30);
+                    FirstPlayer.SubtractRating(30);
+                }
+            }
+            else
+            {
+                if (FirstPlayer.Authorized())
+                {
+                    player = new Player(FirstPlayer);
+                }
+                else
+                {
+                    player = new Player(SecondPlayer);
+                }
+            }
+            Match match;
+            if(!VsBot)
+            {
+                match = new MatchVsPlayer(new Player(FirstPlayer), new Player(SecondPlayer), GameField, ts, DateTime.Now, gameResult);
+            }
+            else
+            {
+                match = new MatchVsBot(Bot, player, GameField, ts, DateTime.Now, gameResult);
+            }
+            match.Show();
+            return match;
+        }
 
+        public Player DefinePlayer(Color color)
+        {
+            if (color == FirstPlayer.Color)
+            {
+                return FirstPlayer;
+            }
+            else
+            {
+                return SecondPlayer;
+            }
         }
         public Way PlayerTurn(Color playerColor, Side side)
         {
@@ -258,7 +321,7 @@ namespace Chess
                     GameField[kingPoint].KingInCheck = true;
                     Console.Beep();
                     PrintMessange("Your king is under attack!\n", ConsoleColor.Red);
-                }                
+                }
                 PrintMessange(msgToPrint.Item1, msgToPrint.Item2);
                 GameField.Show();
                 string introduction;
@@ -320,7 +383,7 @@ namespace Chess
                         while (!endOfChoosing)
                         {
                             endOfChoosing = true;
-                            PrintMessange("Choose an action: ", ConsoleColor.Green);                            
+                            PrintMessange("Choose an action: ", ConsoleColor.Green);
                             int.TryParse(Console.ReadLine(), out int choice);
                             switch (choice)
                             {
