@@ -38,7 +38,16 @@ namespace Chess
             Date = DateTime.MinValue;
             Result = new GameResult();
         }
-        public abstract bool ContainsPlayer(Player player);
+        public void ShowTime()
+        {
+            Console.WriteLine($"The game lasted: {Time.Hours.ToString("00")}:{Time.Minutes.ToString("00")}:" +
+                              $"{Time.Seconds.ToString("00")}:{Time.Milliseconds.ToString("000")}");
+        }
+        public void ShowDate()
+        {
+            Console.WriteLine($"Match Date: {Date:G}");
+        }
+        public abstract bool ContainsPerson(Person person);
         public abstract void Show();
         public abstract void ShowSidePlayer(Side side);
 

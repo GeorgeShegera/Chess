@@ -30,15 +30,15 @@ namespace Chess
 
         }
 
-        public override bool ContainsPlayer(Player player)
+        public override bool ContainsPerson(Person person)
         {
-            return Player == player;
+            return Player == person;
         }
 
         public override void Show()
         {
-            Console.WriteLine($"Match Date: {Date:G}");
-            Console.WriteLine("The game lasted: " + Time);
+            ShowDate();
+            ShowTime();
             ShowSidePlayer(Side.Top);
             FinalField.Show();
             ShowSidePlayer(Side.Bottom);

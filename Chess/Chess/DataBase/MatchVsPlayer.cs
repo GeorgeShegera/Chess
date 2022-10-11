@@ -23,15 +23,15 @@ namespace Chess
             SecondPlayer = loser;
         }
 
-        public override bool ContainsPlayer(Player player)
+        public override bool ContainsPerson(Person person)
         {
-            return FirstPlayer == player || SecondPlayer == player;
+            return FirstPlayer == person || SecondPlayer == person;
         }
 
         public override void Show()
         {
-            Console.WriteLine($"Match Date: {Date:G}");                        
-            Console.WriteLine("The game lasted: " + Time);
+            ShowDate();
+            ShowTime();
             ShowSidePlayer(Side.Top);
             FinalField.Show();
             ShowSidePlayer(Side.Bottom);

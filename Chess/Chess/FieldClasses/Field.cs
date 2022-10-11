@@ -52,9 +52,9 @@ namespace Chess
                 Direction.LeftUp
             };
         }
-        public void Fill(int length, int height, Color color)
+        public void Fill(int length, int height, Color piecesColor)
         {
-            Color curCellCol = Program.SwitchColor(color);
+            Color curCellCol = Color.White;
             for (int i = 0; i < height; i++)
             {
                 Cells.Add(new List<Cell>());
@@ -81,7 +81,7 @@ namespace Chess
                         {
                             curType = ChessPieceType.Bishop;
                         }
-                        else if (j == length / 2)
+                        else if (curCellCol != piecesColor)
                         {
                             curType = ChessPieceType.King;
                         }
@@ -90,14 +90,14 @@ namespace Chess
                             curType = ChessPieceType.Queen;
                         }
                     }
-                    ChessPiece figure = new ChessPiece(color, curType, true);
+                    ChessPiece figure = new ChessPiece(piecesColor, curType, true);
                     Cells[i].Add(new Cell(curCellCol, figure, isEmpty, false));
                     curCellCol = Program.SwitchColor(curCellCol);
                 }
                 curCellCol = Program.SwitchColor(curCellCol);
                 if (i == height / 2)
                 {
-                    color = Program.SwitchColor(color);
+                    piecesColor = Program.SwitchColor(piecesColor);
                 }
             }
         }
@@ -732,7 +732,7 @@ namespace Chess
         }
         public bool KingInCheck(Color playerColor, Side playerSide)
         {
-            Point point = KingPoint(playerColor, playerSide);
+            Point point = KingPoint(playerColor);
             List<Way> enemyWays = FindAllWays(Program.SwitchColor(playerColor), Program.SwitchSide(playerSide));
             List<Way> enAttacks = enemyWays.Where(x => x.AttackWay).ToList();
             foreach (Way way in enemyWays)
@@ -744,7 +744,7 @@ namespace Chess
             }
             return false;
         }
-        public Point KingPoint(Color playerColor, Side playerSide)
+        public Point KingPoint(Color playerColor)
         {
             return ChessPiecesPoints(playerColor, ChessPieceType.King).First();
         }

@@ -8,62 +8,47 @@ using Newtonsoft.Json;
 namespace Chess
 {
     [Serializable]
-    public class Player
+    public class Player : Person
     {
-        [JsonProperty("Login")]
-        public string Login { get; set; }
-
-        [JsonProperty("Password")]
-        public string Password { get; set; }
-
         [JsonProperty("Color")]
         public Color Color { get; set; }
 
         [JsonProperty("Side")]
         public Side Side { get; set; }
 
-        [JsonProperty("Rating")]
-        public int Rating { get; set; }
-
         [JsonProperty("Winner")]
         public bool Winner { get; set; }
 
-        public Player(string login, string password, Color color, Side side, int rating, bool winner)
-        {
-            Login = login;
-            Password = password;
+        public Player(string login, string password, Color color, Side side, int rating, bool winner) 
+            : base(login, password, rating)
+        {            
             Color = color;
             Side = side;
             Rating = rating;
             Winner = winner;
         }
         public Player(Player player)
+            : base(player.Login, player.Password, player.Rating)
         {
-            Login = player.Login;
-            Password = player.Password;
             Color = player.Color;
             Side = player.Side;
             Rating = player.Rating;
             Winner = player.Winner;
         }
 
-        public Player(string login, string password)
+        public Player(Person person)
+            : base(person)
         {
-            Login = login;
-            Password = password;
             Color = new Color();
-            Side = new Side();
-            Rating = 0;
+            Side = new Side();            
             Winner = false;
         }
 
         public Player()
-        {
-            Login = "";
-            Password = "";
+            : base()
+        {            
             Color = Color.White;
-            Side = Side.Bottom;
-            Rating = 0;
+            Side = Side.Bottom;            
             Winner = false;
         }
 
@@ -83,33 +68,6 @@ namespace Chess
         public void SwitchSide()
         {
             Side = Program.SwitchSide(Side);
-        }
-        public bool Authorized()
-        {
-            return Login != "" && Password != "";
-        }
-        public void AddRating(int rating)
-        {
-            Rating += rating;
-        }
-        public void SubtractRating(int rating)
-        {
-            if (Rating < rating)
-            {
-                Rating = 0;
-            }
-            else
-            {
-                Rating -= rating;
-            }
-        }
-        public static bool operator ==(Player player1, Player player2)
-        {
-            return player1.Login == player2.Login && player1.Password == player2.Password;
-        }
-        public static bool operator !=(Player player1, Player player2)
-        {
-            return player1.Login != player2.Login || player1.Password != player2.Password;
         }
     }
 }

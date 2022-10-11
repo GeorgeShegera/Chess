@@ -192,19 +192,34 @@ namespace Chess
                 Bot.SwitchSide();
             }
         }
-        public void AddPlayer(Player player)
+        public void AddPlayer(Person person)
         {
+            Player newPlayer = new Player(person);
             if (FirstPlayer.Authorized())
             {
-                player.Color = Program.SwitchColor(FirstPlayer.Color);
-                player.Side = Program.SwitchSide(FirstPlayer.Side);
-                SecondPlayer = player;
+                newPlayer.Color = Program.SwitchColor(FirstPlayer.Color);
+                newPlayer.Side = Program.SwitchSide(FirstPlayer.Side);
+                SecondPlayer = newPlayer;
             }
             else
             {
-                player.Color = Program.SwitchColor(SecondPlayer.Color);
-                player.Side = Program.SwitchSide(SecondPlayer.Side);
-                FirstPlayer = player;
+                newPlayer.Color = Program.SwitchColor(SecondPlayer.Color);
+                newPlayer.Side = Program.SwitchSide(SecondPlayer.Side);
+                FirstPlayer = newPlayer;
+            }
+        }
+        public void AddBot()
+        {
+            VsBot = true;
+            if (FirstPlayer.Authorized())
+            {
+                Bot.Color = Program.SwitchColor(FirstPlayer.Color);
+                Bot.Side = Program.SwitchSide(FirstPlayer.Side);
+            }
+            else
+            {
+                Bot.Color = Program.SwitchColor(SecondPlayer.Color);
+                Bot.Side = Program.SwitchSide(SecondPlayer.Side);
             }
         }
         public void SwapPlaces()
@@ -221,13 +236,15 @@ namespace Chess
         {
             SecondPlayer = new Player();
         }
-
-        public Match StartGame(Color playerColor)
+        public Color AbovePlayerColor()
         {
-            FirstPlayer.Winner = false;
-            SecondPlayer.Winner = false;
+            if (FirstPlayer.Side == Side.Top) return FirstPlayer.Color;
+            else return SecondPlayer.Color;
+        }
+        public Match StartGame()
+        {
             GameField = new Field();
-            GameField.Fill(8, 8, playerColor);
+            GameField.Fill(8, 8, AbovePlayerColor());
             Color curColor = Color.White;
             Side curSide = DefinePlayer(curColor).Side;
             GameResult gameResult = new GameResult();
@@ -317,7 +334,7 @@ namespace Chess
                 Console.Clear();
                 if (GameField.KingInCheck(playerColor, side))
                 {
-                    Point kingPoint = GameField.KingPoint(playerColor, side);
+                    Point kingPoint = GameField.KingPoint(playerColor);
                     GameField[kingPoint].KingInCheck = true;
                     Console.Beep();
                     PrintMessange("Your king is under attack!\n", ConsoleColor.Red);

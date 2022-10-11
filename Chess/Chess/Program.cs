@@ -83,7 +83,7 @@ namespace Chess
                 default: return new Direction();
             }
         }
-        private static Player Authorization(DataBase dataBase)
+        private static Person Authorization(DataBase dataBase)
         {
             string login;
             string password;
@@ -101,7 +101,7 @@ namespace Chess
                             login = Console.ReadLine();
                             Console.Write("Input your password: ");
                             password = Console.ReadLine();
-                            Player result = dataBase.FindPlayer(login, password);
+                            Person result = dataBase.GetPerson(login, password);
                             if (result is null)
                             {
                                 Console.WriteLine("Invalid login or password");
@@ -123,7 +123,7 @@ namespace Chess
                             }
                             Console.Write("Input your password: ");
                             password = Console.ReadLine();
-                            dataBase.AddPlayer(new Player(login, password));
+                            dataBase.AddPerson(new Person(login, password));
                             SaveDataBase(dataBase);
                             Console.WriteLine("New account has been added");
                         }
@@ -154,7 +154,7 @@ namespace Chess
             while (true)
             {
                 bool endOfSession = false;
-                Player curPlayer = Authorization(dataBase);
+                Person hostPerson = Authorization(dataBase);
                 while (!endOfSession)
                 {
                     Console.Clear();
@@ -180,7 +180,7 @@ namespace Chess
                         case Menu.CreateLobby:
                             {
                                 Game game = new Game();
-                                game.FirstPlayer = curPlayer;
+                                game.FirstPlayer = new Player(hostPerson);
                                 bool exit = false;
                                 while (!exit)
                                 {
@@ -203,9 +203,8 @@ namespace Chess
                                                 {
                                                     Console.WriteLine("The lobby is full");
                                                     break;
-                                                }
-                                                game.VsBot = true;
-                                                game.Bot = new Bot(SwitchColor(curPlayer.Color), SwitchSide(curPlayer.Side));
+                                                }                                                
+                                                game.AddBot();
                                             }
                                             break;
                                         case LobbyMenu.AddPlayer:
@@ -215,13 +214,13 @@ namespace Chess
                                                     Console.WriteLine("The lobby is full");
                                                     break;
                                                 }
-                                                Player player = Authorization(dataBase);
-                                                if (player == curPlayer)
+                                                Person newPerson = Authorization(dataBase);
+                                                if (newPerson == hostPerson)
                                                 {
                                                     Console.WriteLine("You can't play yourself");
                                                     break;
                                                 }
-                                                game.AddPlayer(player);
+                                                game.AddPlayer(newPerson);
                                             }
                                             break;
                                         case LobbyMenu.RemovePlayer:
@@ -231,7 +230,7 @@ namespace Chess
                                                     game.VsBot = false;
                                                     break;
                                                 }
-                                                if (curPlayer == game.FirstPlayer)
+                                                if (hostPerson == game.FirstPlayer)
                                                 {
                                                     game.RemoveSecondPlayer();
                                                 }
@@ -250,7 +249,7 @@ namespace Chess
                                                     Console.WriteLine("There are not enough players");
                                                     break;
                                                 }                                                
-                                                dataBase.AddMatch(game.StartGame(curPlayer.Color));
+                                                dataBase.AddMatch(game.StartGame());
                                                 exit = true;
                                                 SaveDataBase(dataBase);                                                
                                             }
@@ -288,13 +287,13 @@ namespace Chess
                             break;
                         case Menu.Rating:
                             {
-                                dataBase.ShowTopPlayers(5, curPlayer);
+                                dataBase.ShowTopPersons(5, hostPerson);
                             }
                             break;
                         case Menu.MyMatchHistory:
                             {
                                 Console.WriteLine("My match history: ");
-                                dataBase.ShowMatchHistory(curPlayer);
+                                dataBase.ShowMatchHistory(hostPerson);
                             }
                             break;
                         case Menu.RecentMatches:
