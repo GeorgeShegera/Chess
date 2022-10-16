@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -28,6 +29,9 @@ namespace Chess
         [JsonProperty("Direction")]
         public Direction Direction { get; set; }
 
+        [JsonProperty("Profit")]
+        public double Profit { get; set; } = 0;
+
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, SpecialWayType specialType, Direction direction, ChessPiece enChPiece)
         {
             ChessPiece = chPiece;
@@ -53,7 +57,7 @@ namespace Chess
             AttackWay = false;
             EnChessPiece = new ChessPiece();
             SpecialType = specialType;
-            Direction = direction;
+            Direction = direction;            
         }
         public Way(Point prevPoint, Point newPoint)
         {
@@ -102,23 +106,35 @@ namespace Chess
             SpecialType = new SpecialWayType();
             Direction = direction;
         }
-        public Point NewPlace()
+        public Point End()
         {
             return WayPoints.Last();
         }
-        public Point PrevPlace()
+        public Point Start()
         {
             return WayPoints.First();
         }
+        public ChessPieceType EnChessType()
+        {
+            return EnChessPiece.Type;
+        }
+        public ChessPieceType GetWayPiece(Field field)
+        {
+            return field.CellChessPiece(Start()).Type;
+        }
+        public Color EnChessColor()
+        {
+            return EnChessPiece.Color;
+        }
         public static bool operator ==(Way wayFirst, Way waySecond)
         {
-            return wayFirst.NewPlace() == waySecond.NewPlace() &&
-                   wayFirst.PrevPlace() == waySecond.PrevPlace();
+            return wayFirst.End() == waySecond.End() &&
+                   wayFirst.Start() == waySecond.Start();
         }
         public static bool operator !=(Way wayFirst, Way waySecond)
         {
-            return wayFirst.NewPlace() != waySecond.NewPlace() ||
-                   wayFirst.PrevPlace() != waySecond.PrevPlace();
+            return wayFirst.End() != waySecond.End() ||
+                   wayFirst.Start() != waySecond.Start();
         }
     }
 }

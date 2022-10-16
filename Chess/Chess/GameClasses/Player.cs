@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace Chess
 {
     [Serializable]
-    public class Player : Person
+    public class Player : User
     {
         [JsonProperty("Color")]
         public Color Color { get; set; }
@@ -36,7 +36,7 @@ namespace Chess
             Winner = player.Winner;
         }
 
-        public Player(Person person)
+        public Player(User person)
             : base(person)
         {
             Color = new Color();

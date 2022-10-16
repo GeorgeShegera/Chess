@@ -12,26 +12,26 @@ namespace Chess
     [Serializable]
     public class DataBase
     {
-        [JsonProperty("Persons")]
-        public List<Person> Persons { get; set; }
+        [JsonProperty("User")]
+        public List<User> Persons { get; set; }
 
         [JsonProperty("Matches")]
         public List<Match> Matches { get; set; }
 
-        public DataBase(List<Person> persons, List<Match> matches)
+        public DataBase(List<User> persons, List<Match> matches)
         {
             Persons = persons;
             Matches = matches;
         }
         public DataBase()
         {
-            Persons = new List<Person>();
+            Persons = new List<User>();
             Matches = new List<Match>();
         }
 
-        public Person GetPerson(string login, string password)
+        public User GetPerson(string login, string password)
         {
-            foreach (Person person in Persons)
+            foreach (User person in Persons)
             {
                 if (person.Login == login &&
                     person.Password == password)
@@ -50,11 +50,11 @@ namespace Chess
             return persons.Count() != 0;
         }
 
-        public void AddPerson(Person person)
+        public void AddPerson(User person)
         {
             Persons.Add(person);
         }
-        public void AddPersons(List<Person> persons)
+        public void AddPersons(List<User> persons)
         {
             Persons.AddRange(persons);
         }
@@ -62,9 +62,9 @@ namespace Chess
         {
             Matches.Add(match);
         }
-        public void ShowTopPersons(int limit, Person user)
+        public void ShowTopPersons(int limit, User user)
         {
-            List<Person> persons = Persons.Select(x => x).OrderByDescending(x => x.Rating).Take(limit).ToList();
+            List<User> persons = Persons.Select(x => x).OrderByDescending(x => x.Rating).Take(limit).ToList();
             for (int i = 0; i < limit && i < persons.Count; i++)
             {
                 Console.WriteLine($"{i + 1}# {persons[i].Login} - {persons[i].Rating}");
@@ -85,7 +85,7 @@ namespace Chess
             }
         }
 
-        public void ShowMatchHistory(Person person)
+        public void ShowMatchHistory(User person)
         {
             List<Match> matches = (from match in Matches
                                   where match.ContainsPerson(person)

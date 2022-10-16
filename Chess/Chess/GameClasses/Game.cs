@@ -192,7 +192,7 @@ namespace Chess
                 Bot.SwitchSide();
             }
         }
-        public void AddPlayer(Person person)
+        public void AddPlayer(User person)
         {
             Player newPlayer = new Player(person);
             if (FirstPlayer.Authorized())
@@ -252,9 +252,11 @@ namespace Chess
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             Console.ReadKey();
+            Way way;
             while (gameResult == 0)
-            {                
-                Way way = PlayerTurn(curColor, curSide);
+            {
+                if (VsBot && Bot.Color == curColor) way = Bot.BotTurn(GameField);
+                else way = PlayerTurn(curColor, curSide);
                 curColor = Program.SwitchColor(curColor);
                 curSide = DefinePlayer(curColor).Side;
                 if (way.AttackWay ||
@@ -303,9 +305,9 @@ namespace Chess
                 }
             }
             Match match;
-            if(!VsBot)
+            if (!VsBot)
             {
-                match = new MatchVsPlayer(new Player(FirstPlayer), new Player(SecondPlayer), GameField, ts, DateTime.Now, gameResult);
+                match = new MatchVsPlayer(FirstPlayer, SecondPlayer, GameField, ts, DateTime.Now, gameResult);
             }
             else
             {
@@ -384,10 +386,10 @@ namespace Chess
                     msgToPrint = ("Invalid coords, try again.\n", ConsoleColor.Red);
                     continue;
                 }
-                if (legalWays.Any(x => x.NewPlace() == newPlace))
+                if (legalWays.Any(x => x.End() == newPlace))
                 {
                     // We are selecting elements to be not needed and removing them
-                    Way way = legalWays.Except(legalWays.Where(x => x.NewPlace() != newPlace).ToList()).ToList().First();
+                    Way way = legalWays.Except(legalWays.Where(x => x.End() != newPlace).ToList()).ToList().First();
                     if (GameField.PawnTransform(side, way))
                     {
                         PrintMessange("Choose a new chess piece\n", ConsoleColor.Yellow);
@@ -432,7 +434,7 @@ namespace Chess
                                     }
                                     break;
                             }
-                            GameField[way.PrevPlace()].ChessPiece = new ChessPiece(playerColor, type);
+                            GameField[way.Start()].ChessPiece = new ChessPiece(playerColor, type);
                         }
                     }
                     return way;

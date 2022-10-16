@@ -30,7 +30,7 @@ namespace Chess
 
         }
 
-        public override bool ContainsPerson(Person person)
+        public override bool ContainsPerson(User person)
         {
             return Player == person;
         }
@@ -42,7 +42,7 @@ namespace Chess
             ShowSidePlayer(Side.Top);
             FinalField.Show();
             ShowSidePlayer(Side.Bottom);
-            switch (Result)
+            switch (GameStatus)
             {
                 case GameResult.Checkmate:
                     {

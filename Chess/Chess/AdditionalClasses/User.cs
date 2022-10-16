@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Chess
 {
     [Serializable]
-    public class Person
+    public class User
     {
         [JsonProperty("Login")]
         public string Login { get; set; }
@@ -19,24 +19,24 @@ namespace Chess
         [JsonProperty("Rating")]
         public int Rating { get; set; }
 
-        public Person(string login, string password, int rating)
+        public User(string login, string password, int rating)
         {
             Login = login;
             Password = password;
             Rating = rating;
         }
-        public Person(string login, string password)
+        public User(string login, string password)
         {
             Login = login;
             Password = password;
         }
-        public Person()
+        public User()
         {
             Login = "";
             Password = "";
             Rating = 0;
         }
-        public Person(Person person)
+        public User(User person)
         {
             Login = person.Login;
             Password = person.Password;
@@ -60,11 +60,11 @@ namespace Chess
                 Rating -= rating;
             }
         }
-        public static bool operator ==(Person player1, Person player2)
+        public static bool operator ==(User player1, User player2)
         {
             return player1.Login == player2.Login && player1.Password == player2.Password;
         }
-        public static bool operator !=(Person player1, Person player2)
+        public static bool operator !=(User player1, User player2)
         {
             return player1.Login != player2.Login || player1.Password != player2.Password;
         }

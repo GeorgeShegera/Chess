@@ -22,21 +22,21 @@ namespace Chess
         public DateTime Date { get; set; }
 
         [JsonProperty("GameResult")]
-        public GameResult Result { get; set; }
+        public GameResult GameStatus { get; set; }
 
         public Match(Field finallyField, TimeSpan time, DateTime date, GameResult result)
         {
             FinalField = finallyField;
             Time = time;
             Date = date;
-            Result = result;
+            GameStatus = result;
         }
         public Match()
         {
             FinalField = new Field();
             Time = new TimeSpan();
             Date = DateTime.MinValue;
-            Result = new GameResult();
+            GameStatus = new GameResult();
         }
         public void ShowTime()
         {
@@ -47,7 +47,7 @@ namespace Chess
         {
             Console.WriteLine($"Match Date: {Date:G}");
         }
-        public abstract bool ContainsPerson(Person person);
+        public abstract bool ContainsPerson(User person);
         public abstract void Show();
         public abstract void ShowSidePlayer(Side side);
 

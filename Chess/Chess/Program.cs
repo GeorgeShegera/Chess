@@ -83,7 +83,7 @@ namespace Chess
                 default: return new Direction();
             }
         }
-        private static Person Authorization(DataBase dataBase)
+        private static User Authorization(DataBase dataBase)
         {
             string login;
             string password;
@@ -101,7 +101,7 @@ namespace Chess
                             login = Console.ReadLine();
                             Console.Write("Input your password: ");
                             password = Console.ReadLine();
-                            Person result = dataBase.GetPerson(login, password);
+                            User result = dataBase.GetPerson(login, password);
                             if (result is null)
                             {
                                 Console.WriteLine("Invalid login or password");
@@ -123,7 +123,7 @@ namespace Chess
                             }
                             Console.Write("Input your password: ");
                             password = Console.ReadLine();
-                            dataBase.AddPerson(new Person(login, password));
+                            dataBase.AddPerson(new User(login, password));
                             SaveDataBase(dataBase);
                             Console.WriteLine("New account has been added");
                         }
@@ -154,7 +154,7 @@ namespace Chess
             while (true)
             {
                 bool endOfSession = false;
-                Person hostPerson = Authorization(dataBase);
+                User hostPerson = Authorization(dataBase);
                 while (!endOfSession)
                 {
                     Console.Clear();
@@ -214,7 +214,7 @@ namespace Chess
                                                     Console.WriteLine("The lobby is full");
                                                     break;
                                                 }
-                                                Person newPerson = Authorization(dataBase);
+                                                User newPerson = Authorization(dataBase);
                                                 if (newPerson == hostPerson)
                                                 {
                                                     Console.WriteLine("You can't play yourself");
