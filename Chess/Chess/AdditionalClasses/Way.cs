@@ -118,9 +118,9 @@ namespace Chess
         {
             return EnChessPiece.Type;
         }
-        public ChessPieceType GetWayPiece(Field field)
+        public ChessPieceType GetPieceType(Field field)
         {
-            return field.CellChessPiece(Start()).Type;
+            return field.PieceOfCell(Start()).Type;
         }
         public Color EnChessColor()
         {

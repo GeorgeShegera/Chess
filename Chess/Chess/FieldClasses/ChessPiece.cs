@@ -57,7 +57,7 @@ namespace Chess
         public static List<Direction> RookDirations() => new List<Direction>
                                                         {
                                                             Direction.Up,
-                                                            Direction.Down,
+                                                           Direction.Down,
                                                             Direction.Left,
                                                             Direction.Right
                                                         };
@@ -111,6 +111,18 @@ namespace Chess
                                                                         Direction.RightDown
                                                                     }
                                                                 };
+        public int PieceProfit()
+        {
+            switch (Type)
+            {
+                case ChessPieceType.Pawn: return 1;
+                case ChessPieceType.Bishop: return 3;
+                case ChessPieceType.Knight: return 3;
+                case ChessPieceType.Rook: return 5;
+                case ChessPieceType.Queen: return 9;
+                default: return 0;
+            }
+        }
 
     }
 }

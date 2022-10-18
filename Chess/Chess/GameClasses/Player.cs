@@ -63,7 +63,7 @@ namespace Chess
         }
         public void SwitchColor()
         {
-            Color = Program.SwitchColor(Color);
+            Color = Program.SwitchCol(Color);
         }
         public void SwitchSide()
         {

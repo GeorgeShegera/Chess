@@ -46,7 +46,7 @@ namespace Chess
             }
             return json;
         }
-        public static Color SwitchColor(Color color)
+        public static Color SwitchCol(Color color)
         {
             if (color == Color.White)
             {

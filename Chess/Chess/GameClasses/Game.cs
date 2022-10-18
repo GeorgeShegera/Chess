@@ -10,6 +10,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Threading;
 using System.Timers;
+using System.Xml.Schema;
 
 namespace Chess
 {
@@ -197,13 +198,13 @@ namespace Chess
             Player newPlayer = new Player(person);
             if (FirstPlayer.Authorized())
             {
-                newPlayer.Color = Program.SwitchColor(FirstPlayer.Color);
+                newPlayer.Color = Program.SwitchCol(FirstPlayer.Color);
                 newPlayer.Side = Program.SwitchSide(FirstPlayer.Side);
                 SecondPlayer = newPlayer;
             }
             else
             {
-                newPlayer.Color = Program.SwitchColor(SecondPlayer.Color);
+                newPlayer.Color = Program.SwitchCol(SecondPlayer.Color);
                 newPlayer.Side = Program.SwitchSide(SecondPlayer.Side);
                 FirstPlayer = newPlayer;
             }
@@ -213,12 +214,12 @@ namespace Chess
             VsBot = true;
             if (FirstPlayer.Authorized())
             {
-                Bot.Color = Program.SwitchColor(FirstPlayer.Color);
+                Bot.Color = Program.SwitchCol(FirstPlayer.Color);
                 Bot.Side = Program.SwitchSide(FirstPlayer.Side);
             }
             else
             {
-                Bot.Color = Program.SwitchColor(SecondPlayer.Color);
+                Bot.Color = Program.SwitchCol(SecondPlayer.Color);
                 Bot.Side = Program.SwitchSide(SecondPlayer.Side);
             }
         }
@@ -241,10 +242,39 @@ namespace Chess
             if (FirstPlayer.Side == Side.Top) return FirstPlayer.Color;
             else return SecondPlayer.Color;
         }
+        //public int Evaluate()
+        //{
+        //    int BotEval = GameField.CountMaterial(Color.White);
+        //    int enEval = GameField.CountMaterial(Program.SwitchCol(Color.White));
+        //    return BotEval - enEval;
+        //}
+        //public int Search(int depth, Color curColor, Side curSide)
+        //{
+        //    if (depth == 0) return Evaluate();
+        //    List<Way> ways = GameField.AllLegalWays(curColor, curSide);
+        //    if (ways.Count == 0)
+        //    {
+        //        if (GameField.KingInCheck(Color.White, Side.Top))
+        //        {
+        //            return int.MinValue;
+        //        }
+        //        return 0;
+        //    }
+        //    int bestEvaluation = int.MinValue;
+        //    foreach (Way way in ways)
+        //    {
+        //        GameField.MovePiece(way);
+        //        int evaluation = -Search(depth - 1, Program.SwitchCol(curColor), Program.SwitchSide(curSide));
+        //        bestEvaluation = Math.Max(evaluation, bestEvaluation);
+        //        GameField.ReverseMove(way);                
+        //    }
+        //    return bestEvaluation;
+        //}
         public Match StartGame()
         {
             GameField = new Field();
             GameField.Fill(8, 8, AbovePlayerColor());
+            //GameField.TestFill();
             Color curColor = Color.White;
             Side curSide = DefinePlayer(curColor).Side;
             GameResult gameResult = new GameResult();
@@ -257,7 +287,7 @@ namespace Chess
             {
                 if (VsBot && Bot.Color == curColor) way = Bot.BotTurn(GameField);
                 else way = PlayerTurn(curColor, curSide);
-                curColor = Program.SwitchColor(curColor);
+                curColor = Program.SwitchCol(curColor);
                 curSide = DefinePlayer(curColor).Side;
                 if (way.AttackWay ||
                    GameField.PieceType(way) == ChessPieceType.Pawn)
@@ -279,7 +309,7 @@ namespace Chess
             Console.Clear();
             Console.WriteLine("The end of game");
             Player player = new Player();
-            DefinePlayer(Program.SwitchColor(curColor)).Winner = true;
+            DefinePlayer(Program.SwitchCol(curColor)).Winner = true;
             if (!VsBot)
             {
                 if (FirstPlayer.Winner)
@@ -362,7 +392,7 @@ namespace Chess
                     continue;
                 }
                 if (GameField.EmptyCell(chosenPoint) ||
-                   GameField.CellChessPiece(chosenPoint).Color != playerColor)
+                   GameField.PieceOfCell(chosenPoint).Color != playerColor)
                 {
                     Console.Beep();
                     msgToPrint = ("Here is not your chess piece, try again.\n", ConsoleColor.Red);
