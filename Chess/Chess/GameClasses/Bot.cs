@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -43,25 +44,29 @@ namespace Chess
         {
             double maxProfit;
             Color enColor = Program.SwitchCol(Color);
+            field.Show();
             Side enSide = Program.SwitchSide(Side);
             List<Way> legalWays = field.AllLegalWays(Color, Side);
             foreach (Way way in legalWays)
             {
                 if (way.AttackWay)// To verify an exchange
                 {
-                    way.Profit = CountExchangeProfit(field, way, 0, way.End(), Color, Side);
-                }                
+                    way.Profit += way.EnChessPiece.PieceProfit();
+                }
+                //field.Show();
                 way.Profit -= GuardWaysProfit(field, way.Start());
                 field.MovePiece(way);
-                way.Profit += GuardWaysProfit(field, way.End());                
+                //field.Show();
+                way.Profit += GuardWaysProfit(field, way.End());
                 if (!CellUnderAttack(field, way.End()))// To verify the potential attack
-                {                   
+                {
                     List<Way> newWays = field.RealPieceWays(way.End(), Color, Side);
                     foreach (Way newWay in newWays)
                     {
-                        if (newWay.AttackWay)
+                        if (newWay.AttackWay &&
+                            newWay.EnChessPiece.Type != ChessPieceType.King)
                         {
-                            newWay.Profit += CountExchangeProfit(field, newWay, 0, newWay.End(), Color, Side);
+                            newWay.Profit += CountExchangeProfit(field, newWay, Color, newWay.End(), Color, Side);
                         }
                     }
                     if (newWays.Count != 0)
@@ -77,7 +82,7 @@ namespace Chess
                 if (enAttaks.Count > 0)
                 {
                     double maxEnProfit = enAttaks.Max(x => x.Profit);
-                    if (maxEnProfit < 0) way.Profit += maxEnProfit;
+                    if (maxEnProfit > 0) way.Profit -= maxEnProfit;
                 }
                 if (!field.KingInCheck(Color, Side))
                 {
@@ -97,11 +102,12 @@ namespace Chess
             List<Way> res = legalWays.Where(x => x.Profit == maxProfit).ToList();
             return res[new Random().Next(0, res.Count)];
         }
-        public double CountExchangeProfit(Field field, Way curWay, double profit, Point point, Color curColor, Side curSide)
+        public double CountExchangeProfit(Field field, Way curWay, Color color, Point point, Color curColor, Side curSide)
         {
             field.MovePiece(curWay);
+            double profit = 0;
             double curProfit = curWay.EnChessPiece.PieceProfit();
-            if (curColor == Color) profit += curProfit;
+            if (curColor == color) profit += curProfit;
             else profit -= curProfit;
             curColor = Program.SwitchCol(curColor);
             curSide = Program.SwitchSide(curSide);
@@ -109,7 +115,7 @@ namespace Chess
             if (newWays.Count != 0)
             {
                 Way way = newWays.OrderBy(x => x.ChessPiece.PieceProfit()).ToList().First();
-                profit = CountExchangeProfit(field, way, profit, point, curColor, curSide);
+                profit += CountExchangeProfit(field, way, color, point, curColor, curSide);
             }
             field.ReverseMove(curWay);
             return profit;
@@ -122,7 +128,7 @@ namespace Chess
             {
                 if (way.AttackWay)
                 {
-                    way.Profit += CountExchangeProfit(field, way, 0, way.End(), color, side);
+                    way.Profit += CountExchangeProfit(field, way, color, way.End(), color, side);
                     attackWays.Add(way);
                 }
             }
@@ -137,7 +143,7 @@ namespace Chess
             double resProfit = 0;
             Color enColor = Program.SwitchCol(Color);
             Side enSide = Program.SwitchSide(Side);
-            List<Way> enAttackWays = FindAttackWays(field, enColor, enSide);
+            List<Way> enAttackWays = FindAttackWays(field, enColor, enSide);            
             List<Way> guardWays = field.WaysOfProtection(point, Color, Side);
             foreach (Way attackWay in enAttackWays)
             {
@@ -147,7 +153,11 @@ namespace Chess
                     {
                         if (attackWay.End() == guardWay.End())
                         {
-                            resProfit += -attackWay.Profit;
+                            field[guardWay.Start()].IsEmpty = true;
+                            double newProfit = CountExchangeProfit(field, attackWay, enColor, attackWay.End(), enColor, enSide);
+                            field[guardWay.Start()].ChessPiece = guardWay.ChessPiece;
+                            field[guardWay.Start()].IsEmpty = false;
+                            if (attackWay.Profit < newProfit) resProfit += -attackWay.Profit;
                         }
                     }
                 }

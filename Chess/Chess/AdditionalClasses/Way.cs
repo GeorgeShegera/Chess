@@ -69,7 +69,7 @@ namespace Chess
             };
             AttackWay = false;
             EnChessPiece = new ChessPiece();
-            SpecialType = new SpecialWayType();
+            SpecialType = SpecialWayType.Ordinary;
             Direction = new Direction();
         }
         public Way()
@@ -78,7 +78,7 @@ namespace Chess
             EnChessPiece = new ChessPiece();
             WayPoints = new List<Point>();
             AttackWay = false;
-            SpecialType = new SpecialWayType();            
+            SpecialType = SpecialWayType.Ordinary;            
         }
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, Direction direction, ChessPiece enChPiece)
         {
@@ -91,7 +91,7 @@ namespace Chess
             };
             AttackWay = attackWay;
             Direction = direction;
-            SpecialType = new SpecialWayType();
+            SpecialType = SpecialWayType.Ordinary;
         }
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, Direction direction)
         {
@@ -103,29 +103,14 @@ namespace Chess
                 new Point(newPoint)
             };
             AttackWay = false;
-            SpecialType = new SpecialWayType();
+            SpecialType = SpecialWayType.Ordinary;
             Direction = direction;
         }
-        public Point End()
-        {
-            return WayPoints.Last();
-        }
-        public Point Start()
-        {
-            return WayPoints.First();
-        }
-        public ChessPieceType EnChessType()
-        {
-            return EnChessPiece.Type;
-        }
-        public ChessPieceType GetPieceType(Field field)
-        {
-            return field.PieceOfCell(Start()).Type;
-        }
-        public Color EnChessColor()
-        {
-            return EnChessPiece.Color;
-        }
+        public Point End() => WayPoints.Last();
+        public Point Start() => WayPoints.First();
+        public ChessPieceType EnChessType() => EnChessPiece.Type;
+        public ChessPieceType GetPieceType(Field field) => field.PieceOfCell(Start()).Type;        
+        public Color EnChessColor() => EnChessPiece.Color;        
         public static bool operator ==(Way wayFirst, Way waySecond)
         {
             return wayFirst.End() == waySecond.End() &&

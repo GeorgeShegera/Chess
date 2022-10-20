@@ -242,39 +242,11 @@ namespace Chess
             if (FirstPlayer.Side == Side.Top) return FirstPlayer.Color;
             else return SecondPlayer.Color;
         }
-        //public int Evaluate()
-        //{
-        //    int BotEval = GameField.CountMaterial(Color.White);
-        //    int enEval = GameField.CountMaterial(Program.SwitchCol(Color.White));
-        //    return BotEval - enEval;
-        //}
-        //public int Search(int depth, Color curColor, Side curSide)
-        //{
-        //    if (depth == 0) return Evaluate();
-        //    List<Way> ways = GameField.AllLegalWays(curColor, curSide);
-        //    if (ways.Count == 0)
-        //    {
-        //        if (GameField.KingInCheck(Color.White, Side.Top))
-        //        {
-        //            return int.MinValue;
-        //        }
-        //        return 0;
-        //    }
-        //    int bestEvaluation = int.MinValue;
-        //    foreach (Way way in ways)
-        //    {
-        //        GameField.MovePiece(way);
-        //        int evaluation = -Search(depth - 1, Program.SwitchCol(curColor), Program.SwitchSide(curSide));
-        //        bestEvaluation = Math.Max(evaluation, bestEvaluation);
-        //        GameField.ReverseMove(way);                
-        //    }
-        //    return bestEvaluation;
-        //}
         public Match StartGame()
         {
             GameField = new Field();
             GameField.Fill(8, 8, AbovePlayerColor());
-            //GameField.TestFill();
+            GameField.TestFill();            
             Color curColor = Color.White;
             Side curSide = DefinePlayer(curColor).Side;
             GameResult gameResult = new GameResult();

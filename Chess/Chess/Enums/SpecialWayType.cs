@@ -8,7 +8,8 @@ namespace Chess
 {
     public enum SpecialWayType
     {
-        Castling = 1,
+        Ordinary,
+        Castling,
         Enpassant
     }
 }

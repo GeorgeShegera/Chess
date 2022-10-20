@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
@@ -489,10 +490,10 @@ namespace Chess
         {
             List<Way> protectionWays = new List<Way>();
             List<Way> pieceWays = ChessPieceWays(point, color, side);
-            foreach(Way way in pieceWays)
+            foreach (Way way in pieceWays)
             {
                 Point endPoint = way.End();
-                if(!EmptyCell(endPoint) && PieceOfCell(endPoint).Color == color)
+                if (!EmptyCell(endPoint) && PieceOfCell(endPoint).Color == color)
                 {
                     protectionWays.Add(way);
                 }
@@ -502,10 +503,10 @@ namespace Chess
         public int CountMaterial(Color pieceColor)
         {
             int material = 0;
-            foreach(List<Cell> cells in Cells)
+            foreach (List<Cell> cells in Cells)
             {
-                foreach(Cell cell in cells)
-                {                    
+                foreach (Cell cell in cells)
+                {
                     if (!cell.IsEmpty &&
                         cell.FigureColor() == pieceColor)
                     {
@@ -526,10 +527,19 @@ namespace Chess
         }
         public void TestFill()
         {
+            this[new Point(1, 0)].IsEmpty = true;
+            this[new Point(2, 0)].IsEmpty = true;            
+            this[new Point(3, 0)].IsEmpty = true;
+            this[new Point(2, 1)].IsEmpty = true;
+            this[new Point(3, 1)].IsEmpty = true;
+            this[new Point(2, 2)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Pawn);
             this[new Point(2, 2)].IsEmpty = false;
-            this[new Point(2, 2)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Knight);
+            this[new Point(3, 2)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Queen);
+            this[new Point(3, 2)].IsEmpty = false;
+            this[new Point(3, 3)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Pawn);
             this[new Point(3, 3)].IsEmpty = false;
-            this[new Point(3, 3)].ChessPiece = new ChessPiece(Color.White, ChessPieceType.Pawn);
+            this[new Point(4, 3)].ChessPiece = new ChessPiece(Color.White, ChessPieceType.Knight);
+            this[new Point(4, 3)].IsEmpty = false;
         }
         public List<Way> FindKingWays(Point point, Color color)
         {
@@ -537,7 +547,7 @@ namespace Chess
             List<Direction> dirs = AllDirections();
             foreach (Direction dir in dirs)
             {
-                Point curPoint = new Point(point,dir);                
+                Point curPoint = new Point(point, dir);
                 if (VerifyPoint(curPoint))
                 {
                     ways.Add(new Way(PieceOfCell(point), point, curPoint, dir));
@@ -643,8 +653,7 @@ namespace Chess
                 {
                     Point prevPoint = new Point(curPoint, verticalDir);
                     Point newPoint = new Point(curPoint, Program.OppositeDirection(verticalDir));
-                    if (!EmptyCell(curPoint) &&
-                        PieceOfCell(curPoint).Color != color)
+                    if (!EmptyCell(curPoint))
                     {
                         resultWays.Add(new Way(figure, point, curPoint, true, dir, PieceOfCell(curPoint)));
                     }

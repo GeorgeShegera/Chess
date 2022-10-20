@@ -46,28 +46,8 @@ namespace Chess
             }
             return json;
         }
-        public static Color SwitchCol(Color color)
-        {
-            if (color == Color.White)
-            {
-                return Color.Black;
-            }
-            else
-            {
-                return Color.White;
-            }
-        }
-        public static Side SwitchSide(Side side)
-        {
-            if (side == Side.Top)
-            {
-                return Side.Bottom;
-            }
-            else
-            {
-                return Side.Top;
-            }
-        }
+        public static Color SwitchCol(Color color) => color == Color.White ? Color.Black : Color.White;
+        public static Side SwitchSide(Side side) => side == Side.Top ? Side.Bottom : Side.Top;       
         public static Direction OppositeDirection(Direction dir)
         {
             switch (dir)
