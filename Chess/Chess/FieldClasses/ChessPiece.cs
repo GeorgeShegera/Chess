@@ -13,28 +13,28 @@ namespace Chess
         public Color Color { get; set; }
 
         [JsonProperty("Type")]
-        public ChessPieceType Type { get; set; }
+        public PieceType Type { get; set; }
 
-        [JsonProperty("FirstMove")]
-        public bool FirstMove { get; set; }
+        [JsonProperty("MoveNumber")]
+        public int MoveNumber { get; set; }
 
-        public ChessPiece(Color color, ChessPieceType type, bool firstMove)
+        public ChessPiece(Color color, PieceType type, int firstMove)
         {
             Color = color;
             Type = type;
-            FirstMove = firstMove;
+            MoveNumber = firstMove;
         }
-        public ChessPiece(Color color, ChessPieceType type)
+        public ChessPiece(Color color, PieceType type)
         {
             Color = color;
             Type = type;
-            FirstMove = false;
+            MoveNumber = 1;
         }
         public ChessPiece()
         {
             Color = new Color();
-            Type = new ChessPieceType();
-            FirstMove = true;
+            Type = new PieceType();
+            MoveNumber = 0;
         }
         public static List<Direction> PawnAttackDirations(Side side)
         {            
@@ -111,18 +111,18 @@ namespace Chess
                                                                         Direction.RightDown
                                                                     }
                                                                 };
-        public int PieceProfit()
+        public int PieceValue()
         {
             switch (Type)
             {
-                case ChessPieceType.Pawn: return 1;
-                case ChessPieceType.Bishop: return 3;
-                case ChessPieceType.Knight: return 3;
-                case ChessPieceType.Rook: return 5;
-                case ChessPieceType.Queen: return 9;
+                case PieceType.Pawn: return 1;
+                case PieceType.Bishop: return 3;
+                case PieceType.Knight: return 3;
+                case PieceType.Rook: return 5;
+                case PieceType.Queen: return 9;
                 default: return 0;
             }
         }
-
+        public bool FirstMove() => MoveNumber == 0;
     }
 }

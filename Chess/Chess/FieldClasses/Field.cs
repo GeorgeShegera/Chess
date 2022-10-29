@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading.Tasks;
@@ -61,37 +62,37 @@ namespace Chess
                 Cells.Add(new List<Cell>());
                 for (int j = 0; j < length; j++)
                 {
-                    ChessPieceType curType = new ChessPieceType();
+                    PieceType curType = new PieceType();
                     bool isEmpty = true;
                     if (i <= 1 || i >= height - 2)
                     {
                         isEmpty = false;
                         if (i == 1 || i == height - 2)
                         {
-                            curType = ChessPieceType.Pawn;
+                            curType = Chess.PieceType.Pawn;
                         }
                         else if (j == 0 || j == length - 1)
                         {
-                            curType = ChessPieceType.Rook;
+                            curType = Chess.PieceType.Rook;
                         }
                         else if (j == 1 || j == length - 2)
                         {
-                            curType = ChessPieceType.Knight;
+                            curType = Chess.PieceType.Knight;
                         }
                         else if (j == 2 || j == length - 3)
                         {
-                            curType = ChessPieceType.Bishop;
+                            curType = Chess.PieceType.Bishop;
                         }
                         else if (curCellCol != piecesColor)
                         {
-                            curType = ChessPieceType.King;
+                            curType = Chess.PieceType.King;
                         }
                         else
                         {
-                            curType = ChessPieceType.Queen;
+                            curType = Chess.PieceType.Queen;
                         }
                     }
-                    ChessPiece figure = new ChessPiece(piecesColor, curType, true);
+                    ChessPiece figure = new ChessPiece(piecesColor, curType, new int());
                     Cells[i].Add(new Cell(curCellCol, figure, isEmpty, false));
                     curCellCol = Program.SwitchCol(curCellCol);
                 }
@@ -151,28 +152,28 @@ namespace Chess
                         {
                             Console.ForegroundColor = ConsoleColor.Black;
                         }
-                        ChessPieceType type = Cells[i][j].ChessPiece.Type;
-                        if (type == ChessPieceType.Pawn)
+                        PieceType type = Cells[i][j].ChessPiece.Type;
+                        if (type == Chess.PieceType.Pawn)
                         {
                             Console.Write("P");
                         }
-                        else if (type == ChessPieceType.Rook)
+                        else if (type == Chess.PieceType.Rook)
                         {
                             Console.Write("R");
                         }
-                        else if (type == ChessPieceType.Knight)
+                        else if (type == Chess.PieceType.Knight)
                         {
                             Console.Write("N");
                         }
-                        else if (type == ChessPieceType.Bishop)
+                        else if (type == Chess.PieceType.Bishop)
                         {
                             Console.Write("B");
                         }
-                        else if (type == ChessPieceType.King)
+                        else if (type == Chess.PieceType.King)
                         {
                             Console.Write("K");
                         }
-                        else if (type == ChessPieceType.Queen)
+                        else if (type == Chess.PieceType.Queen)
                         {
                             Console.Write("Q");
                         }
@@ -222,7 +223,7 @@ namespace Chess
             return this[point].IsEmpty;
         }
 
-        public ChessPiece PieceOfCell(Point point)
+        public ChessPiece GetPieceOfCell(Point point)
         {
             return this[point].ChessPiece;
         }
@@ -233,7 +234,7 @@ namespace Chess
             return new Point(coordX - 'a', Cells.Count - coordY);
         }
 
-        public List<Way> AllLegalWays(Color playerColor, Side playerSide)
+        public List<Way> LegalWays(Color playerColor, Side playerSide)
         {
             List<Way> result = new List<Way>();
             List<Way> ways = FindAllWays(playerColor, playerSide);
@@ -246,9 +247,9 @@ namespace Chess
             }
             return result;
         }
-        public List<Way> LegalPieceWays(Point startPoint, Color color, Side side)
+        public List<Way> LegalWaysFromPoint(Point startPoint, Color color, Side side)
         {
-            List<Way> allPieceWays = RealPieceWays(startPoint, color, side);
+            List<Way> allPieceWays = FindUnlegalPieceWays(startPoint, color, side);
             List<Way> legalWays = new List<Way>();
             foreach (Way way in allPieceWays)
             {
@@ -259,10 +260,10 @@ namespace Chess
             }
             return legalWays;
         }
-        public List<Way> LegalWays(Point endPoint, Color color, Side side)
+        public List<Way> LegalWaysToPoint(Point endPoint, Color color, Side side)
         {
             List<Way> result = new List<Way>();
-            List<Way> legalWays = AllLegalWays(color, side);
+            List<Way> legalWays = LegalWays(color, side);
             foreach (Way way in legalWays)
             {
                 if (way.End() == endPoint)
@@ -322,13 +323,16 @@ namespace Chess
         }
         public void ReverseMove(Way way)
         {
-            MovePiece(new Way(PieceOfCell(way.End()), way.End(), way.Start(), way.Direction));
+            way.ChessPiece.MoveNumber -= 2;
+            MovePiece(new Way(GetPieceOfCell(way.End()), way.End(), way.Start(), way.Direction));
             if (way.SpecialType == SpecialWayType.Castling)
             {
                 Direction dir = way.Direction;
+                way.ChessPiece.MoveNumber--;
                 Point newPlace = CastleRooKPoint(dir, way.End().CoordY);
                 Point prevPoint = new Point(way.End(), Program.OppositeDirection(dir));
-                MovePiece(new Way(PieceOfCell(prevPoint), prevPoint, newPlace, dir));
+                GetPieceOfCell(prevPoint).MoveNumber -= 2;
+                MovePiece(new Way(GetPieceOfCell(prevPoint), prevPoint, newPlace, dir));
             }
             if (way.AttackWay)
             {
@@ -353,14 +357,16 @@ namespace Chess
         }
         public void MovePiece(Way way)
         {
+            way.ChessPiece.MoveNumber++;
+            if (way.AttackWay) way.EnChessPiece = GetPieceOfCell(way.End());
             if (way.SpecialType == SpecialWayType.Castling)
             {
                 Point newKingPoint = new Point(way.End());
                 Point prevPoint = CastleRooKPoint(way.Direction, newKingPoint.CoordY);
                 Direction oppositeDir = Program.OppositeDirection(way.Direction);
                 Point newPoint = new Point(newKingPoint, oppositeDir);
-                MovePiece(new Way(PieceOfCell(newKingPoint), way.Start(), way.End(), way.Direction));
-                MovePiece(new Way(PieceOfCell(prevPoint), prevPoint, newPoint, oppositeDir));
+                MovePiece(new Way(GetPieceOfCell(newKingPoint), way.Start(), way.End(), way.Direction));
+                MovePiece(new Way(GetPieceOfCell(prevPoint), prevPoint, newPoint, oppositeDir));
                 return;
             }
             else if (way.SpecialType == SpecialWayType.Enpassant)
@@ -378,7 +384,7 @@ namespace Chess
                 this[new Point(way.End(), dir)].IsEmpty = true;
             }
             this[way.End()].IsEmpty = false;
-            this[way.End()].ChessPiece = PieceOfCell(way.Start());
+            this[way.End()].ChessPiece = GetPieceOfCell(way.Start());
             this[way.Start()].IsEmpty = true;
         }
 
@@ -406,7 +412,7 @@ namespace Chess
             List<Point> points = FindPiecesPoints(playerColor);
             foreach (Point point in points)
             {
-                result.AddRange(RealPieceWays(point, playerColor, playerSide));
+                result.AddRange(FindUnlegalPieceWays(point, playerColor, playerSide));
             }
             return result;
         }
@@ -420,7 +426,7 @@ namespace Chess
                 {
                     Point curPoint = new Point(j, i);
                     if (!EmptyCell(curPoint) &&
-                       PieceOfCell(curPoint).Color == playerColor)
+                       GetPieceOfCell(curPoint).Color == playerColor)
                     {
                         points.Add(curPoint);
                     }
@@ -429,37 +435,37 @@ namespace Chess
             return points;
         }
 
-        public List<Way> ChessPieceWays(Point point, Color color, Side side)
+        public List<Way> PieceWays(Point point, Color color, Side side)
         {
             if (EmptyCell(point))
             {
                 return new List<Way>();
             }
             FigureWays figureWays;
-            switch (PieceOfCell(point).Type)
+            switch (GetPieceOfCell(point).Type)
             {
-                case ChessPieceType.Pawn: return FindPawnWays(point, color, side);
-                case ChessPieceType.Bishop:
+                case Chess.PieceType.Pawn: return FindPawnWays(point, color, side);
+                case Chess.PieceType.Bishop:
                     {
                         figureWays = FindBishopWays;
                     }
                     break;
-                case ChessPieceType.Rook:
+                case Chess.PieceType.Rook:
                     {
                         figureWays = FindRookWays;
                     }
                     break;
-                case ChessPieceType.Queen:
+                case Chess.PieceType.Queen:
                     {
                         figureWays = FindQueenWays;
                     }
                     break;
-                case ChessPieceType.Knight:
+                case Chess.PieceType.Knight:
                     {
                         figureWays = FindKnightWays;
                     }
                     break;
-                case ChessPieceType.King:
+                case Chess.PieceType.King:
                     {
                         figureWays = FindKingWays;
                     }
@@ -472,14 +478,14 @@ namespace Chess
             }
             return figureWays?.Invoke(point, color);
         }
-        public List<Way> RealPieceWays(Point point, Color color, Side side)
+        public List<Way> FindUnlegalPieceWays(Point point, Color color, Side side)
         {
-            List<Way> ways = ChessPieceWays(point, color, side);
+            List<Way> ways = PieceWays(point, color, side);
             List<Way> result = new List<Way>();
             foreach (Way way in ways)
             {
                 Point endPoint = way.End();
-                if (EmptyCell(endPoint) || PieceOfCell(endPoint).Color != color)
+                if (EmptyCell(endPoint) || GetPieceOfCell(endPoint).Color != color)
                 {
                     result.Add(way);
                 }
@@ -489,12 +495,13 @@ namespace Chess
         public List<Way> WaysOfProtection(Point point, Color color, Side side)
         {
             List<Way> protectionWays = new List<Way>();
-            List<Way> pieceWays = ChessPieceWays(point, color, side);
+            List<Way> pieceWays = PieceWays(point, color, side);
             foreach (Way way in pieceWays)
             {
                 Point endPoint = way.End();
-                if (!EmptyCell(endPoint) && PieceOfCell(endPoint).Color == color)
+                if (!EmptyCell(endPoint) && GetPieceOfCell(endPoint).Color == color)
                 {
+                    way.AttackWay = true;
                     protectionWays.Add(way);
                 }
             }
@@ -510,7 +517,7 @@ namespace Chess
                     if (!cell.IsEmpty &&
                         cell.FigureColor() == pieceColor)
                     {
-                        material += cell.ChessPiece.PieceProfit();
+                        material += cell.ChessPiece.PieceValue();
                     }
                 }
             }
@@ -519,27 +526,49 @@ namespace Chess
         public void VerifyAttack(Way way, Color color)
         {
             if (!EmptyCell(way.End()) &&
-                PieceOfCell(way.End()).Color != color)
+                GetPieceOfCell(way.End()).Color != color)
             {
                 way.AttackWay = true;
-                way.EnChessPiece = PieceOfCell(way.End());
+                way.EnChessPiece = GetPieceOfCell(way.End());
             }
+        }
+        public static double DistBetPoints(Point point1, Point point2) =>
+             Math.Sqrt(Math.Pow(point1.CoordX - point2.CoordX, 2) +
+                 Math.Pow(point1.CoordY - point2.CoordY, 2));
+        public static double DistToCentre(Point point)
+        {
+            List<double> distances = new List<double>
+            {
+                DistBetPoints(point, new Point(4, 4)),
+                DistBetPoints(point, new Point(3, 3)),
+                DistBetPoints(point, new Point(4, 3)),
+                DistBetPoints(point, new Point(3, 4))
+            };
+            return distances.Min();
         }
         public void TestFill()
         {
-            this[new Point(1, 0)].IsEmpty = true;
-            this[new Point(2, 0)].IsEmpty = true;            
-            this[new Point(3, 0)].IsEmpty = true;
-            this[new Point(2, 1)].IsEmpty = true;
-            this[new Point(3, 1)].IsEmpty = true;
-            this[new Point(2, 2)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Pawn);
-            this[new Point(2, 2)].IsEmpty = false;
-            this[new Point(3, 2)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Queen);
-            this[new Point(3, 2)].IsEmpty = false;
-            this[new Point(3, 3)].ChessPiece = new ChessPiece(Color.Black, ChessPieceType.Pawn);
-            this[new Point(3, 3)].IsEmpty = false;
-            this[new Point(4, 3)].ChessPiece = new ChessPiece(Color.White, ChessPieceType.Knight);
-            this[new Point(4, 3)].IsEmpty = false;
+            foreach (List<Cell> cells in Cells)
+            {
+                foreach (Cell cell in cells)
+                {
+                    cell.IsEmpty = true;
+                }
+            }
+
+            this[new Point(3, 1)].ChessPiece = new ChessPiece(Color.White, PieceType.King);
+            this[new Point(3, 1)].IsEmpty = false;
+            this[new Point(6, 6)].ChessPiece = new ChessPiece(Color.Black, PieceType.King);
+            this[new Point(6, 6)].IsEmpty = false;
+            this[new Point(4, 2)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
+            this[new Point(4, 2)].IsEmpty = false;
+            this[new Point(7, 7)].ChessPiece = new ChessPiece(Color.Black, PieceType.Queen);
+            this[new Point(7, 7)].IsEmpty = false;
+
+            //this[new Point(5, 2)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(5, 2)].IsEmpty = false;
+            //this[new Point(5, 2)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(5, 2)].IsEmpty = false;
         }
         public List<Way> FindKingWays(Point point, Color color)
         {
@@ -550,17 +579,17 @@ namespace Chess
                 Point curPoint = new Point(point, dir);
                 if (VerifyPoint(curPoint))
                 {
-                    ways.Add(new Way(PieceOfCell(point), point, curPoint, dir));
+                    ways.Add(new Way(GetPieceOfCell(point), point, curPoint, dir));
                     VerifyAttack(ways.Last(), color);
                 }
             }
-            if (PieceOfCell(point).FirstMove)
+            if (GetPieceOfCell(point).FirstMove())
             {
-                List<Point> rooksPoints = ChessPiecesPoints(color, ChessPieceType.Rook);
+                List<Point> rooksPoints = ChessPiecesPoints(color, PieceType.Rook);
                 dirs = new List<Direction>();
                 foreach (Point item in rooksPoints)
                 {
-                    if (PieceOfCell(item).FirstMove)
+                    if (GetPieceOfCell(item).FirstMove())
                     {
                         if (item.CoordX < Cells.Count / 2)
                         {
@@ -577,10 +606,7 @@ namespace Chess
                     Point curPoint = new Point(point);
                     int limit = 2;
                     bool castling = true;
-                    if (dir == Direction.Left)
-                    {
-                        limit = 3;
-                    }
+                    if (dir == Direction.Left) limit = 3;
                     for (int i = 0; i < limit; i++)
                     {
                         curPoint.MovePoint(dir);
@@ -592,7 +618,8 @@ namespace Chess
                     }
                     if (castling)
                     {
-                        ways.Add(new Way(PieceOfCell(point), point, curPoint, SpecialWayType.Castling, dir));
+                        if (dir == Direction.Left) curPoint.MovePoint(Direction.Right);
+                        ways.Add(new Way(GetPieceOfCell(point), point, curPoint, SpecialWayType.Castling, dir));
                     }
                 }
             }
@@ -612,22 +639,22 @@ namespace Chess
                 }
                 if (VerifyPoint(curPoint))
                 {
-                    ways.Add(new Way(PieceOfCell(point), point, curPoint, directions.Last()));
+                    ways.Add(new Way(GetPieceOfCell(point), point, curPoint, directions.Last()));
                     VerifyAttack(ways.Last(), color);
                 }
             }
             return ways;
         }
 
-        public List<Way> FindQueenWays(Point point, Color color) => DiractedWays(color, point, AllDirections());
+        public List<Way> FindQueenWays(Point point, Color color) => DirectedWays(color, point, AllDirections());
 
-        public List<Way> FindBishopWays(Point point, Color color) => DiractedWays(color, point, ChessPiece.BishopDiration());
+        public List<Way> FindBishopWays(Point point, Color color) => DirectedWays(color, point, ChessPiece.BishopDiration());
 
-        public List<Way> FindRookWays(Point point, Color color) => DiractedWays(color, point, ChessPiece.RookDirations());
+        public List<Way> FindRookWays(Point point, Color color) => DirectedWays(color, point, ChessPiece.RookDirations());
 
         public List<Way> FindPawnWays(Point point, Color color, Side side)
         {
-            ChessPiece figure = PieceOfCell(point);
+            ChessPiece figure = GetPieceOfCell(point);
             Point curPoint = new Point(point);
             List<Way> resultWays = new List<Way>();
             Direction verticalDir = ChessPiece.PawnMoveDir(side);
@@ -638,7 +665,7 @@ namespace Chess
             {
                 resultWays.Add(new Way(figure, point, curPoint, verticalDir));
                 curPoint.MovePoint(verticalDir);
-                if (figure.FirstMove &&
+                if (figure.FirstMove() &&
                     VerifyPoint(curPoint) &&
                     EmptyCell(curPoint))
                 {
@@ -655,23 +682,23 @@ namespace Chess
                     Point newPoint = new Point(curPoint, Program.OppositeDirection(verticalDir));
                     if (!EmptyCell(curPoint))
                     {
-                        resultWays.Add(new Way(figure, point, curPoint, true, dir, PieceOfCell(curPoint)));
+                        resultWays.Add(new Way(figure, point, curPoint, true, dir, GetPieceOfCell(curPoint)));
                     }
                     else if (VerifyPoint(prevPoint) &&
                             VerifyPoint(newPoint) &&
                             this[prevPoint].Track &&
                             this[newPoint].Track &&
                             !EmptyCell(newPoint) &&
-                            PieceOfCell(newPoint).Type == ChessPieceType.Pawn)
+                            GetPieceOfCell(newPoint).Type == Chess.PieceType.Pawn)
                     {
-                        resultWays.Add(new Way(figure, point, curPoint, true, SpecialWayType.Enpassant, dir, PieceOfCell(newPoint)));
+                        resultWays.Add(new Way(figure, point, curPoint, true, SpecialWayType.Enpassant, dir, GetPieceOfCell(newPoint)));
                     }
                 }
             }
             return resultWays;
         }
 
-        public List<Way> DiractedWays(Color playerColor, Point point, List<Direction> dirs)
+        public List<Way> DirectedWays(Color playerColor, Point point, List<Direction> dirs)
         {
             List<Way> ways = new List<Way>();
             foreach (Direction dir in dirs)
@@ -683,7 +710,7 @@ namespace Chess
                     curPoint.MovePoint(dir);
                     if (VerifyPoint(curPoint))
                     {
-                        ways.Add(new Way(PieceOfCell(point), point, curPoint, dir));
+                        ways.Add(new Way(GetPieceOfCell(point), point, curPoint, dir));
                         VerifyAttack(ways.Last(), playerColor);
                         if (!EmptyCell(curPoint))
                         {
@@ -701,11 +728,6 @@ namespace Chess
         public void MakeTurn(Way way)
         {
             MovePiece(way);
-            ChessPiece chessPiece = PieceOfCell(way.End());
-            if (chessPiece.FirstMove)
-            {
-                chessPiece.FirstMove = false;
-            }
             this[way.End()].Track = true;
             this[way.Start()].Track = true;
         }
@@ -725,9 +747,10 @@ namespace Chess
         }
         public Point KingPoint(Color playerColor)
         {
-            return ChessPiecesPoints(playerColor, ChessPieceType.King).First();
+            List<Point> points = ChessPiecesPoints(playerColor, PieceType.King);
+            return points.Count == 0 ? new Point() : points.First();
         }
-        public List<Point> ChessPiecesPoints(Color color, ChessPieceType figureType)
+        public List<Point> ChessPiecesPoints(Color color, PieceType figureType)
         {
             List<Point> points = new List<Point>();
             for (int i = 0; i < Cells.Count; i++)
@@ -735,7 +758,7 @@ namespace Chess
                 for (int j = 0; j < Cells[i].Count; j++)
                 {
                     Point curPoint = new Point(j, i);
-                    ChessPiece curFigure = PieceOfCell(curPoint);
+                    ChessPiece curFigure = GetPieceOfCell(curPoint);
                     if (!EmptyCell(curPoint) &&
                         curFigure.Color == color &&
                         curFigure.Type == figureType)
@@ -751,22 +774,22 @@ namespace Chess
             int lastLine;
             if (playerSide == Side.Bottom) lastLine = 0;
             else lastLine = Cells.Count - 1;
-            return PieceType(way) == ChessPieceType.Pawn &&
+            return WayPieceType(way) == Chess.PieceType.Pawn &&
                    way.End().CoordY == lastLine;
         }
         public bool Checkmate(Color playerColor, Side playerSide)
         {
-            return AllLegalWays(playerColor, playerSide).Count == 0 &&
+            return LegalWays(playerColor, playerSide).Count == 0 &&
                    KingInCheck(playerColor, playerSide);
         }
         public bool Stalemate(Color playerColor, Side playerSide)
         {
-            return AllLegalWays(playerColor, playerSide).Count == 0 &&
-                   KingInCheck(playerColor, playerSide);
+            return LegalWays(playerColor, playerSide).Count == 0 &&
+                   !KingInCheck(playerColor, playerSide);
         }
-        public ChessPieceType PieceType(Way way)
+        public PieceType WayPieceType(Way way)
         {
-            return PieceOfCell(way.Start()).Type;
+            return GetPieceOfCell(way.Start()).Type;
         }
         public Cell this[Point point]
         {

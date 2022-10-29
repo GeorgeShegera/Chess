@@ -39,8 +39,8 @@ namespace Chess
         public Player(User person)
             : base(person)
         {
-            Color = new Color();
-            Side = new Side();            
+            Color = Color.White;
+            Side = Side.Bottom;            
             Winner = false;
         }
 

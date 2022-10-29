@@ -239,21 +239,21 @@ namespace Chess
         }
         public Color AbovePlayerColor()
         {
-            if (FirstPlayer.Side == Side.Top) return FirstPlayer.Color;
+            if (VsBot && Bot.Side == Side.Top) return Bot.Color;
+            else if (FirstPlayer.Side == Side.Top) return FirstPlayer.Color;
             else return SecondPlayer.Color;
         }
         public Match StartGame()
         {
             GameField = new Field();
             GameField.Fill(8, 8, AbovePlayerColor());
-            GameField.TestFill();            
+            GameField.TestFill();
             Color curColor = Color.White;
             Side curSide = DefinePlayer(curColor).Side;
             GameResult gameResult = new GameResult();
             int uselessMoves = 0;
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            Console.ReadKey();
             Way way;
             while (gameResult == 0)
             {
@@ -262,7 +262,7 @@ namespace Chess
                 curColor = Program.SwitchCol(curColor);
                 curSide = DefinePlayer(curColor).Side;
                 if (way.AttackWay ||
-                   GameField.PieceType(way) == ChessPieceType.Pawn)
+                   GameField.WayPieceType(way) == PieceType.Pawn)
                 {
                     uselessMoves = 0;
                 }
@@ -319,17 +319,7 @@ namespace Chess
             return match;
         }
 
-        public Player DefinePlayer(Color color)
-        {
-            if (color == FirstPlayer.Color)
-            {
-                return FirstPlayer;
-            }
-            else
-            {
-                return SecondPlayer;
-            }
-        }
+        public Player DefinePlayer(Color color) => color == FirstPlayer.Color ? FirstPlayer : SecondPlayer;
         public Way PlayerTurn(Color playerColor, Side side)
         {
             (string, ConsoleColor) msgToPrint = ("", ConsoleColor.Gray);
@@ -364,13 +354,13 @@ namespace Chess
                     continue;
                 }
                 if (GameField.EmptyCell(chosenPoint) ||
-                   GameField.PieceOfCell(chosenPoint).Color != playerColor)
+                   GameField.GetPieceOfCell(chosenPoint).Color != playerColor)
                 {
                     Console.Beep();
                     msgToPrint = ("Here is not your chess piece, try again.\n", ConsoleColor.Red);
                     continue;
                 }
-                List<Way> legalWays = GameField.LegalPieceWays(chosenPoint, playerColor, side);
+                List<Way> legalWays = GameField.LegalWaysFromPoint(chosenPoint, playerColor, side);
                 if (legalWays.Count == 0)
                 {
                     Console.Beep();
@@ -399,7 +389,7 @@ namespace Chess
                                           "2 - Rook\n" +
                                           "3 - Bishop\n" +
                                           "4 - Knight");
-                        ChessPieceType type = new ChessPieceType();
+                        PieceType type = new PieceType();
                         bool endOfChoosing = false;
                         while (!endOfChoosing)
                         {
@@ -410,22 +400,22 @@ namespace Chess
                             {
                                 case 1:
                                     {
-                                        type = ChessPieceType.Queen;
+                                        type = PieceType.Queen;
                                     }
                                     break;
                                 case 2:
                                     {
-                                        type = ChessPieceType.Rook;
+                                        type = PieceType.Rook;
                                     }
                                     break;
                                 case 3:
                                     {
-                                        type = ChessPieceType.Bishop;
+                                        type = PieceType.Bishop;
                                     }
                                     break;
                                 case 4:
                                     {
-                                        type = ChessPieceType.Knight;
+                                        type = PieceType.Knight;
                                     }
                                     break;
                                 default:

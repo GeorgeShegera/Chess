@@ -57,7 +57,7 @@ namespace Chess
             AttackWay = false;
             EnChessPiece = new ChessPiece();
             SpecialType = specialType;
-            Direction = direction;            
+            Direction = direction;
         }
         public Way(Point prevPoint, Point newPoint)
         {
@@ -78,7 +78,7 @@ namespace Chess
             EnChessPiece = new ChessPiece();
             WayPoints = new List<Point>();
             AttackWay = false;
-            SpecialType = SpecialWayType.Ordinary;            
+            SpecialType = SpecialWayType.Ordinary;
         }
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, Direction direction, ChessPiece enChPiece)
         {
@@ -108,8 +108,8 @@ namespace Chess
         }
         public Point End() => WayPoints.Last();
         public Point Start() => WayPoints.First();
-        public ChessPieceType EnChessType() => EnChessPiece.Type;
-        public ChessPieceType GetPieceType(Field field) => field.PieceOfCell(Start()).Type;        
+        public PieceType EnChessType() => EnChessPiece.Type;
+        public PieceType GetPieceType(Field field) => field.GetPieceOfCell(Start()).Type;        
         public Color EnChessColor() => EnChessPiece.Color;        
         public static bool operator ==(Way wayFirst, Way waySecond)
         {

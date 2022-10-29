@@ -50,7 +50,7 @@
     <Compile Include="GameClasses\Bot.cs" />
     <Compile Include="FieldClasses\Cell.cs" />
     <Compile Include="DataBase\DataBase.cs" />
-    <Compile Include="Enums\ChessPieceType.cs" />
+    <Compile Include="Enums\PieceType.cs" />
     <Compile Include="Enums\Color.cs" />
     <Compile Include="FieldClasses\Field.cs" />
     <Compile Include="FieldClasses\ChessPiece.cs" />
