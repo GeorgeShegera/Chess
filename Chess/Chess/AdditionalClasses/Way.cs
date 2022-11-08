@@ -11,7 +11,7 @@ namespace Chess
     [Serializable]
     public class Way
     {
-        [JsonProperty("Figure")]
+        [JsonProperty("Piece")]
         public ChessPiece ChessPiece { get; set; }
 
         [JsonProperty("WayPoints")]
@@ -29,6 +29,9 @@ namespace Chess
         [JsonProperty("Direction")]
         public Direction Direction { get; set; }
 
+        [JsonProperty("Safty")]
+        public bool Safety { get; set; }
+
         [JsonProperty("Profit")]
         public double Profit { get; set; } = 0;
 
@@ -44,7 +47,7 @@ namespace Chess
             AttackWay = attackWay;
             SpecialType = specialType;
             Direction = direction;
-            ChessPiece = chPiece;
+            Safety = false;
         }
         public Way(ChessPiece chessPiece, Point prevPoint, Point newPoint, SpecialWayType specialType, Direction direction)
         {
@@ -58,6 +61,7 @@ namespace Chess
             EnChessPiece = new ChessPiece();
             SpecialType = specialType;
             Direction = direction;
+            Safety = false;
         }
         public Way(Point prevPoint, Point newPoint)
         {
@@ -71,14 +75,7 @@ namespace Chess
             EnChessPiece = new ChessPiece();
             SpecialType = SpecialWayType.Ordinary;
             Direction = new Direction();
-        }
-        public Way()
-        {
-            ChessPiece = new ChessPiece();
-            EnChessPiece = new ChessPiece();
-            WayPoints = new List<Point>();
-            AttackWay = false;
-            SpecialType = SpecialWayType.Ordinary;
+            Safety = false;
         }
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, bool attackWay, Direction direction, ChessPiece enChPiece)
         {
@@ -92,6 +89,7 @@ namespace Chess
             AttackWay = attackWay;
             Direction = direction;
             SpecialType = SpecialWayType.Ordinary;
+            Safety = false;
         }
         public Way(ChessPiece chPiece, Point prevPoint, Point newPoint, Direction direction)
         {
@@ -105,12 +103,13 @@ namespace Chess
             AttackWay = false;
             SpecialType = SpecialWayType.Ordinary;
             Direction = direction;
+            Safety = false;
         }
         public Point End() => WayPoints.Last();
         public Point Start() => WayPoints.First();
         public PieceType EnChessType() => EnChessPiece.Type;
-        public PieceType GetPieceType(Field field) => field.GetPieceOfCell(Start()).Type;        
-        public Color EnChessColor() => EnChessPiece.Color;        
+        public PieceType GetPieceType(Field field) => field.GetCellPiece(Start()).Type;        
+        public Color EnPieceColor() => EnChessPiece.Color;        
         public static bool operator ==(Way wayFirst, Way waySecond)
         {
             return wayFirst.End() == waySecond.End() &&

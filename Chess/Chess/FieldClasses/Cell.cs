@@ -14,7 +14,7 @@ namespace Chess
         public Color Color { get; set; }
 
         [JsonProperty("Figure")]
-        public ChessPiece ChessPiece { get; set; }
+        public ChessPiece Piece { get; set; }
 
         [JsonProperty("IsEmpty")]
         public bool IsEmpty { get; set; }
@@ -34,7 +34,7 @@ namespace Chess
         public Cell(Color color, ChessPiece chessPiece, bool isEmpty, bool track)
         {
             Color = color;
-            ChessPiece = chessPiece;
+            Piece = chessPiece;
             IsEmpty = isEmpty;
             Track = track;
             WayPoint = false;
@@ -43,7 +43,7 @@ namespace Chess
         }        
         public Color FigureColor()
         {
-            return ChessPiece.Color;
+            return Piece.Color;
         }
         public void ClearWayPoints()
         {

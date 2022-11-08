@@ -49,26 +49,26 @@ namespace Chess
                             Direction.LeftDown
                         };            
         }
-        public static Direction PawnMoveDir(Side side)
+        public static Direction PawnMoveDirections(Side side)
         {            
             if(side == Side.Bottom) return Direction.Up;
             else return Direction.Down;
         }
-        public static List<Direction> RookDirations() => new List<Direction>
+        public static List<Direction> RookDiretions() => new List<Direction>
                                                         {
                                                             Direction.Up,
-                                                           Direction.Down,
+                                                            Direction.Down,
                                                             Direction.Left,
                                                             Direction.Right
                                                         };
-        public static List<Direction> BishopDiration() => new List<Direction>
+        public static List<Direction> BishopDiretion() => new List<Direction>
                                                         {
                                                             Direction.LeftUp,
                                                             Direction.LeftDown,
                                                             Direction.RightUp,
                                                             Direction.RightDown
                                                         };
-        public static List<List<Direction>> KnightDiration() => new List<List<Direction>>
+        public static List<List<Direction>> KnightDiretion() => new List<List<Direction>>
                                                                 {
                                                                     new List<Direction>
                                                                     {

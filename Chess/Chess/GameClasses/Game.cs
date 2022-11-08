@@ -247,7 +247,7 @@ namespace Chess
         {
             GameField = new Field();
             GameField.Fill(8, 8, AbovePlayerColor());
-            GameField.TestFill();
+            //GameField.TestFill();
             Color curColor = Color.White;
             Side curSide = DefinePlayer(curColor).Side;
             GameResult gameResult = new GameResult();
@@ -260,7 +260,7 @@ namespace Chess
                 if (VsBot && Bot.Color == curColor) way = Bot.BotTurn(GameField);
                 else way = PlayerTurn(curColor, curSide);
                 curColor = Program.SwitchCol(curColor);
-                curSide = DefinePlayer(curColor).Side;
+                curSide = Program.SwitchSide(curSide);
                 if (way.AttackWay ||
                    GameField.WayPieceType(way) == PieceType.Pawn)
                 {
@@ -318,7 +318,53 @@ namespace Chess
             match.Show();
             return match;
         }
+        public void BattleOfBots()
+        {
 
+            GameField.Fill(8, 8, Color.Black);
+            GameField.TestFill();
+            GameField.UpdatePiecesPoints();
+            Bot bot1 = new Bot(Color.White, Side.Bottom);
+            Bot bot2 = new Bot(Color.Black, Side.Top);
+            Color curColor = Color.White;
+            Side curSide = Side.Bottom;
+            Way curWay;
+            int uselessMoves = 0;
+            GameResult gameRes = 0;
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            int moveCounter = 0;
+            while (gameRes == 0)
+            {
+                moveCounter++;
+                GameField.Show();
+                GameField.Clear();
+                Console.WriteLine($"Turn of {curColor} Bot\n" +
+                                  $"Turn number {moveCounter}");
+                if (bot1.Color == curColor) curWay = bot1.BotTurn(GameField);
+                else curWay = bot2.BotTurn(GameField);
+                GameField.MakeTurn(curWay);                
+                curColor = Program.SwitchCol(curColor);
+                curSide = Program.SwitchSide(curSide);
+                if (curWay.AttackWay ||
+                    GameField.WayPieceType(curWay) == PieceType.Pawn)
+                {
+                    uselessMoves = 0;
+                }
+                else
+                {
+                    uselessMoves++;
+                }
+                if (GameField.Checkmate(curColor, curSide)) gameRes = GameResult.Checkmate;
+                else if (GameField.Stalemate(curColor, curSide)) gameRes = GameResult.StaleMate;
+                else if (uselessMoves == 75) gameRes = GameResult.FiftyMoveRule;
+            }
+            stopwatch.Stop();
+            GameField.Show();
+            Console.WriteLine(gameRes + " ...\n" +
+                              $"Game time: {stopwatch.Elapsed}");
+            Console.ReadLine();
+        }
         public Player DefinePlayer(Color color) => color == FirstPlayer.Color ? FirstPlayer : SecondPlayer;
         public Way PlayerTurn(Color playerColor, Side side)
         {
@@ -354,7 +400,7 @@ namespace Chess
                     continue;
                 }
                 if (GameField.EmptyCell(chosenPoint) ||
-                   GameField.GetPieceOfCell(chosenPoint).Color != playerColor)
+                   GameField.GetCellPiece(chosenPoint).Color != playerColor)
                 {
                     Console.Beep();
                     msgToPrint = ("Here is not your chess piece, try again.\n", ConsoleColor.Red);
@@ -382,7 +428,7 @@ namespace Chess
                 {
                     // We are selecting elements to be not needed and removing them
                     Way way = legalWays.Except(legalWays.Where(x => x.End() != newPlace).ToList()).ToList().First();
-                    if (GameField.PawnTransform(side, way))
+                    if (GameField.PawnTransformation(side, way))
                     {
                         PrintMessange("Choose a new chess piece\n", ConsoleColor.Yellow);
                         Console.WriteLine("1 - Queen\n" +
@@ -426,7 +472,7 @@ namespace Chess
                                     }
                                     break;
                             }
-                            GameField[way.Start()].ChessPiece = new ChessPiece(playerColor, type);
+                            GameField[way.Start()].Piece = new ChessPiece(playerColor, type);
                         }
                     }
                     return way;

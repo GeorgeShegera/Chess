@@ -120,6 +120,10 @@ namespace Chess
 
         static void Main(string[] args)
         {
+            Game game1 = new Game();
+            game1.BattleOfBots();
+
+            Console.ReadLine();
             Console.OutputEncoding = Encoding.UTF8;
             DataBase dataBase = new DataBase();
             string data = LoadDataBase();
