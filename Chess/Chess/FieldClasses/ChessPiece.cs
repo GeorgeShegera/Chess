@@ -39,15 +39,15 @@ namespace Chess
         public static List<Direction> PawnAttackDirations(Side side)
         {            
             if (side == Side.Bottom) return new List<Direction>
-                                            {
-                                                Direction.RightUp,
-                                                Direction.LeftUp
-                                            };
+            {
+                Direction.RightUp,
+                Direction.LeftUp
+            };
             else return new List<Direction>
-                        {
-                            Direction.RightDown,
-                            Direction.LeftDown
-                        };            
+            {
+                Direction.RightDown,
+                Direction.LeftDown
+            };            
         }
         public static Direction PawnMoveDirections(Side side)
         {            
@@ -111,7 +111,7 @@ namespace Chess
                                                                         Direction.RightDown
                                                                     }
                                                                 };
-        public int PieceValue()
+        public int Value()
         {
             switch (Type)
             {

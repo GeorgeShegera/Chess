@@ -71,6 +71,27 @@ namespace Chess
                 }
             }
         }
+        public void CheckPieces()
+        {
+            List<Point> pieces = new List<Point>(WhitePieces);
+            foreach (Point point in pieces)
+            {
+                if (EmptyCell(point) || 
+                    GetCellPiece(point).Color != Color.White)
+                {
+                    WhitePieces.Remove(point);
+                }
+            }
+            pieces = new List<Point>(BlackPieces);
+            foreach (Point point in pieces)
+            {
+                if (EmptyCell(point) ||
+                    GetCellPiece(point).Color != Color.Black)
+                {
+                    BlackPieces.Remove(point);
+                }
+            }
+        }
         public void AddPiecePoint(Point point, Color color)
         {
             if (color == Color.White) WhitePieces.Add(point);
@@ -486,7 +507,7 @@ namespace Chess
         public List<Way> FindAllWays(Color playerColor, Side playerSide)
         {
             List<Way> result = new List<Way>();
-            List<Point> points = FindPiecesPoints(playerColor);
+            List<Point> points = GetPiecesPoints(playerColor);
             foreach (Point point in points)
             {
                 result.AddRange(FindPieceWays(point, playerColor, playerSide, false));
@@ -494,23 +515,20 @@ namespace Chess
             return result;
         }
 
-        public List<Point> FindPiecesPoints(Color playerColor)
+        public List<Point> GetPiecesPoints(Color playerColor)
         {
-            //List<Point> points = new List<Point>();
-            //for (int i = 0; i < Cells.Count; i++)
-            //{
-            //    for (int j = 0; j < Cells[i].Count; j++)
-            //    {
-            //        Point curPoint = new Point(j, i);
-            //        if (!EmptyCell(curPoint) &&
-            //           GetCellPiece(curPoint).Color == playerColor)
-            //        {
-            //            points.Add(curPoint);
-            //        }
-            //    }
-            //}
-            //return points;
             return playerColor == Color.White ? WhitePieces : BlackPieces;
+        }
+
+        public int GetPiecesProfit(Color color)
+        {
+            int result = 0;
+            List<Point> points = color == Color.White ? WhitePieces : BlackPieces;
+            foreach(Point point in points)
+            {
+                result += GetCellPiece(point).Value();
+            }
+            return result;
         }
 
         public List<Way> FindPieceWays(Point point, Color color, Side side, bool guard)
@@ -577,145 +595,82 @@ namespace Chess
         }
         public void TestFill()
         {
-            foreach (List<Cell> cells in Cells)
-            {
-                foreach (Cell cell in cells)
-                {
-                    if (cell.Piece.Type != PieceType.King)
-                    cell.IsEmpty = true;
-                }
-            }
+            //foreach (List<Cell> cells in Cells)
+            //{
+            //    foreach (Cell cell in cells)
+            //    {
+            //        if (cell.Piece.Type != PieceType.King)
+            //            cell.IsEmpty = true;
+            //    }
+            //}
 
-            this[new Point(0, 7)].Piece = new ChessPiece(Color.White, PieceType.Knight);
-            this[new Point(0, 7)].IsEmpty = false;
-            this[new Point(3, 4)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
-            this[new Point(3, 4)].IsEmpty = false;
-            this[new Point(3, 0)].Piece = new ChessPiece(Color.Black, PieceType.Rook);
-            this[new Point(3, 0)].IsEmpty = false;
-
-
-            //BlackKingPoint = new Point(2, 2);
-            //WhiteKingPoint = new Point(7, 7);
-
-            //this[new Point(2, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.King);
-            //this[new Point(2, 2)].IsEmpty = false;
-            //this[new Point(7, 7)].ChessPiece = new ChessPiece(Color.White, PieceType.King);
-            //this[new Point(7, 7)].IsEmpty = false;
-            //this[new Point(6, 6)].ChessPiece = new ChessPiece(Color.White, PieceType.Queen);
-            //this[new Point(6, 6)].IsEmpty = false;
-
-
-
-
-            //WhiteKingPoint = new Point(5, 7);
-
-            //this[new Point(2, 4)].Track = true;
-            //this[new Point(1, 2)].Track = true;
-
-
-            //this[new Point(3, 0)].IsEmpty = true;
-            //this[new Point(6, 0)].IsEmpty = true;
-            //this[new Point(0, 1)].IsEmpty = true;
-            //this[new Point(5, 1)].IsEmpty = true;
-            //this[new Point(4, 1)].IsEmpty = true;
-            //this[new Point(3, 1)].IsEmpty = true;
-            //this[new Point(1, 6)].IsEmpty = true;
-            //this[new Point(4, 6)].IsEmpty = true;
-            //this[new Point(3, 7)].IsEmpty = true;
-            //this[new Point(5, 7)].IsEmpty = true;
-            //this[new Point(4, 7)].IsEmpty = true;
-
-
-            //this[new Point(4, 2)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(4, 2)].IsEmpty = false;
-            //this[new Point(2, 3)].Piece = new ChessPiece(Color.Black, PieceType.Queen);
-            //this[new Point(2, 3)].IsEmpty = false;
-            //this[new Point(3, 3)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(3, 3)].IsEmpty = false;
-            //this[new Point(4, 3)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
-            //this[new Point(4, 3)].IsEmpty = false;
-            //this[new Point(5, 3)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(5, 3)].IsEmpty = false;
+            //this[new Point(6, 1)].Piece = new ChessPiece(Color.Black, PieceType.King);
+            //this[new Point(6, 1)].IsEmpty = false;
+            //this[new Point(5, 2)].Piece = new ChessPiece(Color.Black, PieceType.Rook);
+            //this[new Point(5, 2)].IsEmpty = false;
+            //this[new Point(6, 2)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
+            //this[new Point(6, 2)].IsEmpty = false;
+            //this[new Point(0, 3)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
+            //this[new Point(0, 3)].IsEmpty = false;
+            //this[new Point(7, 3)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
+            //this[new Point(7, 3)].IsEmpty = false;
+            //this[new Point(0, 4)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(0, 4)].IsEmpty = false;
             //this[new Point(1, 4)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
             //this[new Point(1, 4)].IsEmpty = false;
-            //this[new Point(2, 4)].Piece = new ChessPiece(Color.Black, PieceType.Knight);
+            //this[new Point(2, 4)].Piece = new ChessPiece(Color.White, PieceType.Bishop);
             //this[new Point(2, 4)].IsEmpty = false;
             //this[new Point(5, 4)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
             //this[new Point(5, 4)].IsEmpty = false;
-            //this[new Point(3, 5)].Piece = new ChessPiece(Color.White, PieceType.Bishop);
-            //this[new Point(3, 5)].IsEmpty = false;
-            //this[new Point(5, 6)].Piece = new ChessPiece(Color.White, PieceType.Queen);
-            //this[new Point(5, 6)].IsEmpty = false;
-            //this[new Point(5, 7)].Piece = new ChessPiece(Color.White, PieceType.King);
-            //this[new Point(5, 7)].IsEmpty = false;
-
-
-            //BlackKingPoint = new Point(6, 6);
-            //WhiteKingPoint = new Point(3, 1);
-            //this[new Point(3, 1)].ChessPiece = new ChessPiece(Color.White, PieceType.King);
-            //this[new Point(3, 1)].IsEmpty = false;
-            //this[new Point(6, 6)].ChessPiece = new ChessPiece(Color.Black, PieceType.King);
-            //this[new Point(6, 6)].IsEmpty = false;
-            //this[new Point(4, 2)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
-            //this[new Point(4, 2)].IsEmpty = false;
-            //this[new Point(7, 7)].ChessPiece = new ChessPiece(Color.Black, PieceType.Queen);
-            //this[new Point(7, 7)].IsEmpty = false;
-
-
-
-
-
-
-            //BlackKingPoint = new Point(5, 0);
-            //WhiteKingPoint = new Point(4, 6);
-
-            //this[new Point(2, 0)].IsEmpty = true;
-            //this[new Point(3, 0)].IsEmpty = true;
-            //this[new Point(6, 0)].IsEmpty = true;
-            //this[new Point(6, 0)].IsEmpty = true;
-            //this[new Point(0, 1)].IsEmpty = true;
-            //this[new Point(1, 2)].IsEmpty = true;
-            //this[new Point(3, 2)].IsEmpty = true;
-            //this[new Point(4, 2)].IsEmpty = true;
-            //this[new Point(2, 6)].IsEmpty = true;
-            //this[new Point(3, 6)].IsEmpty = true;
-            //this[new Point(4, 6)].ChessPiece = new ChessPiece(Color.White, PieceType.Bishop);
-            //this[new Point(6, 6)].IsEmpty = true;
-            //this[new Point(1, 7)].IsEmpty = true;
-            //this[new Point(5, 7)].IsEmpty = true;
-            //this[new Point(6, 7)].IsEmpty = true;
-            //this[new Point(1, 1)].IsEmpty = true;
-            //this[new Point(3, 1)].IsEmpty = true;
-            //this[new Point(4, 1)].IsEmpty = true;
-            //this[new Point(2, 6)].IsEmpty = true;
-
-
-            //this[new Point(2, 4)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
-            //this[new Point(2, 4)].IsEmpty = false;
-            //this[new Point(0, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(0, 2)].IsEmpty = false;
-            //this[new Point(1, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(1, 2)].IsEmpty = false;
-            //this[new Point(2, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.Queen);
-            //this[new Point(2, 2)].IsEmpty = false;
-            //this[new Point(0, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(0, 2)].IsEmpty = false;
-            //this[new Point(7, 2)].ChessPiece = new ChessPiece(Color.Black, PieceType.Knight);
-            //this[new Point(7, 2)].IsEmpty = false;
-            //this[new Point(3, 3)].ChessPiece = new ChessPiece(Color.Black, PieceType.Pawn);
-            //this[new Point(3, 3)].IsEmpty = false;
-            //this[new Point(3, 4)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
-            //this[new Point(3, 4)].IsEmpty = false;
-            //this[new Point(0, 5)].ChessPiece = new ChessPiece(Color.White, PieceType.Knight);
-            //this[new Point(0, 5)].IsEmpty = false;
-            //this[new Point(1, 5)].ChessPiece = new ChessPiece(Color.White, PieceType.Knight);
-            //this[new Point(1, 5)].IsEmpty = false;
-            //this[new Point(4, 5)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(4, 5)].Piece = new ChessPiece(Color.White, PieceType.Knight);
             //this[new Point(4, 5)].IsEmpty = false;
-            //this[new Point(6, 5)].ChessPiece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(6, 5)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
             //this[new Point(6, 5)].IsEmpty = false;
-            //this[new Point(7, 5)].ChessPiece = new ChessPiece(Color.Black, PieceType.Bishop);
+            //this[new Point(7, 5)].Piece = new ChessPiece(Color.White, PieceType.Rook);
             //this[new Point(7, 5)].IsEmpty = false;
+            //this[new Point(1, 6)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
+            //this[new Point(1, 6)].IsEmpty = false;
+            //this[new Point(3, 6)].Piece = new ChessPiece(Color.White, PieceType.Bishop);
+            //this[new Point(3, 6)].IsEmpty = false;
+            //this[new Point(4, 7)].Piece = new ChessPiece(Color.White, PieceType.King);
+            //this[new Point(4, 7)].IsEmpty = false;
+
+            //BlackKingPoint = new Point(6, 1);
+            //WhiteKingPoint = new Point(4, 7);
+
+
+
+
+
+
+            this[new Point(3, 0)].IsEmpty = true;
+            this[new Point(5, 0)].IsEmpty = true;
+            this[new Point(3, 1)].IsEmpty = true;
+            this[new Point(4, 1)].IsEmpty = true;
+            this[new Point(6, 1)].IsEmpty = true;
+            this[new Point(1, 6)].IsEmpty = true;
+            this[new Point(2, 6)].IsEmpty = true;
+            this[new Point(3, 6)].IsEmpty = true;
+            this[new Point(4, 6)].IsEmpty = true;
+            this[new Point(6, 7)].IsEmpty = true;
+
+            this[new Point(5, 2)].Piece = new ChessPiece(Color.Black, PieceType.Queen);
+            this[new Point(5, 2)].IsEmpty = false;
+            this[new Point(6, 2)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
+            this[new Point(6, 2)].IsEmpty = false;
+            this[new Point(3, 3)].Piece = new ChessPiece(Color.White, PieceType.Knight);
+            this[new Point(3, 3)].IsEmpty = false;
+            this[new Point(4, 3)].Piece = new ChessPiece(Color.Black, PieceType.Bishop);
+            this[new Point(4, 3)].IsEmpty = false;
+            this[new Point(4, 4)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
+            this[new Point(4, 4)].IsEmpty = false;
+            this[new Point(1, 5)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
+            this[new Point(1, 5)].IsEmpty = false;
+            this[new Point(2, 5)].Piece = new ChessPiece(Color.White, PieceType.Pawn);
+            this[new Point(2, 5)].IsEmpty = false;
+            this[new Point(3, 5)].Piece = new ChessPiece(Color.Black, PieceType.Pawn);
+            this[new Point(3, 5)].IsEmpty = false;
+
         }
         public List<Way> FindKingWays(Point point, Color color, Side side, bool guard)
         {

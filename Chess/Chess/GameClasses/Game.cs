@@ -320,14 +320,13 @@ namespace Chess
         }
         public void BattleOfBots()
         {
-
             GameField.Fill(8, 8, Color.Black);
-            GameField.TestFill();
+            //GameField.TestFill();
             GameField.UpdatePiecesPoints();
             Bot bot1 = new Bot(Color.White, Side.Bottom);
             Bot bot2 = new Bot(Color.Black, Side.Top);
-            Color curColor = Color.White;
-            Side curSide = Side.Bottom;
+            Color curColor = Color.Black;
+            Side curSide = Side.Top;
             Way curWay;
             int uselessMoves = 0;
             GameResult gameRes = 0;
@@ -343,7 +342,8 @@ namespace Chess
                                   $"Turn number {moveCounter}");
                 if (bot1.Color == curColor) curWay = bot1.BotTurn(GameField);
                 else curWay = bot2.BotTurn(GameField);
-                GameField.MakeTurn(curWay);                
+                GameField.MakeTurn(curWay);
+                GameField.CheckPieces();
                 curColor = Program.SwitchCol(curColor);
                 curSide = Program.SwitchSide(curSide);
                 if (curWay.AttackWay ||

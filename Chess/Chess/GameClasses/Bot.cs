@@ -46,99 +46,119 @@ namespace Chess
         public double CountWaysProfit(List<Way> ways)
         {
             double profit = 0f;
-            foreach(Way way in ways)
+            foreach (Way way in ways)
             {
-                if(way.Profit > 0) profit += way.Profit;
+                if (way.Profit > 0) profit += way.Profit;
             }
             return profit;
         }
-        public List<Way> SortSafetyWays(List<Way> ways, Color color, Side side, Field field)
+        public void SetSafety(List<Way> ways, Color color, Side side, Field field)
         {
-            ways = ways.Where(x => VerifySafety(x, color, side, field)).ToList();
-            if (ways.Count > 0) return ways;
-            else return new List<Way>();
+            foreach (Way way in ways)
+            {
+                way.Safety = VerifySafety(way, color, side, field);
+            }
         }
+        public bool VerifyCheckMate(Field field, List<Way> ways, Color color, Side side)
+        {
+            bool checkmate;
+            foreach (Way way in ways)
+            {
+                field.MakeMove(way);
+                checkmate = field.Checkmate(color, side);
+                field.ReverseMove(way);
+                if (checkmate) return true;
+            }
+            return false;
+        }
+
         public Way BotTurn(Field field)
         {
             //Console.Clear();
             //field.Show();
-            //Console.WriteLine("Bot is thinking...");
+            //Console.WriteLine("Bot is thinking...");   
             double bestAttackProfit;
             Color enColor = Program.SwitchCol(Color);
             Side enSide = Program.SwitchSide(Side);
+            int myPiecesValue = field.GetPiecesProfit(Color);
+            int enPiecesCount = field.GetPiecesProfit(enColor);
             int piecesNumber = field.CountPieces();// to count number of pieces
             List<Way> legalWays = field.LegalWays(Color, Side);
-            List<Way> enLegalWays = field.LegalWays(enColor, enSide);
-            List<Way> enAttacksBefore = FindAttackWays(field, enColor, enSide, enLegalWays);
-            double attackProfitBef = CountWaysProfit(enAttacksBefore);
-            double potentProfitBef = PotentialWaysProfit(field, enColor, enSide, enLegalWays);            
             foreach (Way way in legalWays)
             {
+                if (way.ChessPiece.Type == PieceType.King && way.ChessPiece.FirstMove() &&
+                    way.SpecialType != SpecialWayType.Castling) way.Profit--;
                 way.Safety = VerifySafety(way, Color, Side, field);
                 CountTransformationProfit(field, way, Color, Side);// to count pawn's transformation
-                if (piecesNumber < 8) way.Profit += CuttedOffKingDist(field, way, Color, Side);// to cut of enemy's ways (late game)
-                if (way.AttackWay) way.Profit += way.EnChessPiece.PieceValue();// to count an attack profit
-                //way.Profit -= GuardWaysProfit(field, way.Start(), Color, Side, enAttacksBefore);// to count guard prof before the move
+                if (piecesNumber < 8 && myPiecesValue > enPiecesCount) way.Profit += CuttedOffKingDist(field, way, Color, Side);// to cut of enemy's ways (late game)
+                if (way.AttackWay) way.Profit += way.EnChessPiece.Value();// to count an attack profit                
                 field.MakeMove(way);// to make the move
 
-                List<Way> enLegWaysAfter = field.LegalWays(enColor, enSide);// to find enemy's legal ways
-                List<Way> enAttaks = FindAttackWays(field, enColor, enSide, enLegWaysAfter);// to find enemy's attaks
-                double enPotentProf = PotentialWaysProfit(field, enColor, enSide, enLegalWays);// to find enemy's potential ways
-                List<Way> myAttaks = FindAttackWays(field, Color, Side, field.LegalWays(Color, Side));// to find enemy's attaks
-                way.Profit -= CountWaysProfit(enAttaks) - attackProfitBef; // to count an attack's difference
-                way.Profit -= enPotentProf - potentProfitBef;// to count potential difference
-                myAttaks = SortSafetyWays(myAttaks, Color, Side, field);
-                if (myAttaks.Count > 0)// to check attack count 
+                //field.Show();
+
+                List<Way> enLegalWays = field.LegalWays(enColor, enSide);// to find enemy's legal ways
+                List<Way> enAttaks = FindAttackWays(field, enColor, enSide, enLegalWays);// to find enemy's attaks
+                //SetSafety(enAttaks, enColor, enSide, field);
+                
+                if (enAttaks.Count > 0)// to check attack count 
+                {
+                    bestAttackProfit = enAttaks.Max(x => x.Profit);
+                    if (bestAttackProfit > 0) way.Profit -= bestAttackProfit;
+                }
+                //field.Show();
+                if (VerifyCheckMate(field, enLegalWays, Color, Side)) way.Profit -= int.MaxValue;
+
+                //myLegalWays = myLegalWays.Where(x => x.Safety).ToList();
+                //way.Profit += MaxPotentialProfit(field, Color, Side, myLegalWays);// to count my potential attack profit
+                //way.Profit -= MaxPotentialProfit(field, enColor, enSide, enLegWaysAfter);// to finpotentiald enemy's  ways
+
+                List<Way> myLegalWays = field.LegalWays(Color, Side);// bot's legal ways
+                List<Way> myAttaks = FindAttackWays(field, Color, Side, myLegalWays);// to find bot's attaks
+                //SetSafety(myAttaks, Color, Side, field);
+
+                //myAttaks = myAttaks.Where(x => x.End() != way.End() || way.Safety).ToList();
+                if (!way.Safety) myAttaks = myAttaks.Where(x => x.Start() != way.End()).ToList();
+                if (way.Safety && myAttaks.Count > 0)
                 {
                     bestAttackProfit = myAttaks.Max(x => x.Profit);
-                    if (bestAttackProfit > 0) way.Profit += bestAttackProfit / 2;
+                    if (bestAttackProfit > 0) way.Profit += bestAttackProfit / 3;
                 }
 
 
-
-                //if (enAttaks.Count > 0)// to check attack count 
-                //{
-                //    bestAttackProfit = enAttaks.Max(x => x.Profit);
-                //    if (way.AttackWay &&
-                //        enAttaks.Any(x => x.End() == way.End() && x.Profit == bestAttackProfit))
-                //    {
-                //        way.Profit -= way.EnChessPiece.PieceValue();
-                //    }
-                //    if (bestAttackProfit > 0) way.Profit -= bestAttackProfit;
-                //}
 
                 //way.Profit += GuardWaysProfit(field, way.End(), Color, Side, enAttaks);// to count guard prof after the move
                 //maxPotentialProf = MaxPotentialProfit(field, Color, Side, field.LegalWays(Color, Side));// to count my potential attack profit
                 //if (maxPotentialProf > 0) way.Profit += maxPotentialProf;
 
-
                 //maxPotentialProf = MaxPotentialProfit(field, enColor, enSide, enLegWaysAfter);// to count enemy's potential profit
                 //if (maxPotentialProf > 0) way.Profit -= maxPotentialProf;// to verify and count enemy's potential profit
-                way.Profit -= MaxTransformationProfit(field, enColor, enSide, enLegWaysAfter);// to count enemy's transformation profit
-                if (field.Checkmate(enColor, enSide, enLegWaysAfter))// to verify checkmate
+
+                way.Profit -= MaxTransformationProfit(field, enColor, enSide, enLegalWays);// to count enemy's transformation profit
+                if (field.Checkmate(enColor, enSide, enLegalWays))// to verify checkmate
                 {
                     field.ReverseMove(way);
                     return way;
                 }
-                if (way.SpecialType == SpecialWayType.Castling) way.Profit += 2;// to verify castling
+                if (way.SpecialType == SpecialWayType.Castling) way.Profit += 2;//  to verify castling
                 field.ReverseMove(way);
             }
             double maxProfit = legalWays.Max(x => x.Profit);
-            List<Way> res = legalWays.Where(x => x.Profit == maxProfit).ToList();
-            Way resultWay = res[new Random().Next(0, res.Count)];
+            List<Way> resultWays = legalWays.Where(x => x.Profit == maxProfit).ToList();
+            Way resultWay = resultWays[new Random().Next(0, resultWays.Count)];
             field.PawnTransformation(resultWay);
             return resultWay;
         }
         public void CountTransformationProfit(Field field, Way way, Color color, Side side)
         {
-            if (way.ChessPiece.Type != PieceType.Pawn) return;
+            if (way.ChessPiece.Type != PieceType.Pawn || !way.Safety) return;
             Direction dir;
             if (side == Side.Top) dir = Direction.Down;
             else dir = Direction.Up;
             List<Way> ways = new List<Way> { way };
             ways.AddRange(field.DirectedWays(Color, way.End(), new List<Direction> { dir }, false));
             if (ways.Count > 0 && (ways.Last().End().CoordY == 0 ||
-                ways.Last().End().CoordY == field.Cells.Count - 1) && way.Safety)
+                ways.Last().End().CoordY == field.Cells.Count - 1) &&
+                ways.Any(x => field.IsSaftyPoint(x.End(), color, side)))
             {
                 int distance;
                 if (side == Side.Bottom) distance = way.End().CoordY;
@@ -192,7 +212,7 @@ namespace Chess
             List<Way> newWays = field.LegalWaysFromPoint(way.End(), color, side);
             foreach (Way newWay in newWays)
             {
-                if (newWay.EnChessPiece.Type == PieceType.King) newWay.Profit++;
+                if (!field.EmptyCell(newWay.End()) && newWay.EnChessPiece.Type == PieceType.King) newWay.Profit++;
                 else if (newWay.AttackWay)
                 {
                     List<double> profits = new List<double>();
@@ -203,43 +223,34 @@ namespace Chess
             if (newWays.Count != 0)
             {
                 double maxProfit = newWays.Max(x => x.Profit);
-                if (maxProfit > 0)
-                {
-                    resProfit += maxProfit / 3;
-                }
+                if (maxProfit > 0) resProfit = maxProfit / 10;
             }
             field.ReverseMove(way);
             return resProfit;
         }
-        //public double MaxPotentialProfit(Field field, Color color, Side side, List<Way> legalWays)
-        //{
-
-        //    if (legalWays.Count != 0) return legalWays.Max(x => x.Profit);
-        //    else return 0;
-        //}
-        public double PotentialWaysProfit(Field field, Color color, Side side, List<Way> legalWays)
+        public double MaxPotentialProfit(Field field, Color color, Side side, List<Way> legalWays)
         {
-            double resProfit = 0f;
+            List<double> resProfits = new List<double> { 0 };
             foreach (Way way in legalWays)
             {
-                resProfit = CountPotentialProfit(field, way, color, side);
+                resProfits.Add(CountPotentialProfit(field, way, color, side));
             }
-            return resProfit;
+            return resProfits.Max();
         }
         public bool VerifySafety(Way way, Color color, Side side, Field field)
         {
             Color enColor = Program.SwitchCol(color);
             Side enSide = Program.SwitchSide(side);
             field.MakeMove(way);
-            List<Way> enAttacks = FindAttackWays(field, enColor, enSide, field.LegalWays(enColor, enSide));
-            if (enAttacks.Count > 0) enAttacks = enAttacks.Where(x => x.End() == way.End()).ToList();
+            List<Way> enAttacks = FindAttackWays(field, enColor, enSide, field.LegalWaysToPoint(way.End(), enColor, enSide));
+            //if (enAttacks.Count > 0) enAttacks = enAttacks.Where(x => x.End() == way.End()).ToList();
             field.ReverseMove(way);
             return enAttacks.Count == 0 || enAttacks.Max(x => x.Profit) < 0;
         }
         public void CountExchangeProfit(Field field, List<double> profits, Way curWay, Color color, Point point, Color curColor, Side curSide)
         {
             field.MakeMove(curWay);
-            double curProfit = curWay.EnChessPiece.PieceValue();
+            double curProfit = curWay.EnChessPiece.Value();
             if (curColor != color) curProfit *= -1;
             curColor = Program.SwitchCol(curColor);
             curSide = Program.SwitchSide(curSide);
@@ -252,7 +263,7 @@ namespace Chess
             List<Way> newWays = field.LegalWaysToPoint(point, curColor, curSide);
             if (newWays.Count != 0)
             {
-                Way way = newWays.OrderBy(x => x.ChessPiece.PieceValue()).ToList().First();
+                Way way = newWays.OrderBy(x => x.ChessPiece.Value()).ToList().First();
                 CountExchangeProfit(field, profits, way, color, point, curColor, curSide);
             }
             field.ReverseMove(curWay);
@@ -293,7 +304,7 @@ namespace Chess
                     {
                         //bool king = guardWay.GetPieceType(field) != PieceType.King;
                         field[guardWay.Start()].IsEmpty = true; // to find your chess piece 
-                        List<double> profits = new List<double>(); 
+                        List<double> profits = new List<double>();
                         CountExchangeProfit(field, profits, attackWay, enColor, attackWay.End(), enColor, enSide);
                         double maxProfit = profits.Max(); // to count the biggest pfrofit 
                         field[guardWay.Start()].Piece = guardWay.ChessPiece; // to return chess piece back
